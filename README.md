@@ -1,8 +1,15 @@
-# Foobar
+# Rana Scheduler
 
-Foobar is a Python library for dealing with word pluralization.
+This is a simple scheduler app made with Flask and Python 3.
 
 ## Installation
+
+Clone the repository and cd into it.
+
+```bash
+git clone git@github.com:diggerdata/CS3733-Rana.git
+cd CS3733-Rana
+```
 
 Setup a virtualenv to make it so your packages are not installed globally.
 
