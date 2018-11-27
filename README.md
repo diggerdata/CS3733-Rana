@@ -11,6 +11,7 @@ git clone git@github.com:diggerdata/CS3733-Rana.git
 cd CS3733-Rana
 ```
 
+### Linux/Mac
 Setup a virtualenv to make it so your packages are not installed globally.
 
 ```bash
@@ -19,7 +20,6 @@ virtualenv .env
 
 Source the newly created virtualenv to install all required pip packages.
 
-### Linux/Mac
 ```bash
 source .enb/bin/activate
 ```
@@ -30,6 +30,8 @@ First, you will need to change your PowerShell execution policty to run the scri
 ```bash
 Set-ExecutionPolicy Unrestricted
 ```
+
+Enter `A` and press `Enter`.
 
 Now cd into the project directory and run the following in in a normal, non-administrator PowerShell.
 ```bash
