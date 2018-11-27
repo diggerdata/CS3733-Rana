@@ -1,1 +1,1 @@
-from .foo import foo_blueprint
+from .schedule import schedule_blueprint

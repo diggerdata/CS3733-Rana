@@ -4,7 +4,7 @@ from flask import Flask, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
-from resources import foo_blueprint
+from .resources import schedule_blueprint
 
 app = Flask(__name__)
 CORS(app)
@@ -16,12 +16,14 @@ if 'SERVERTYPE' in os.environ and os.environ['SERVERTYPE'] == 'AWS Lambda':
 else:
     conf = 'config.DevelopmentConfig'
 
+# import the specified config
 app.config.from_object(conf)
 
+# setup the database object
 db = SQLAlchemy(app)
 
 # add blueprints here
-app.register_blueprint(foo_blueprint)
+app.register_blueprint(schedule_blueprint)
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5000)
