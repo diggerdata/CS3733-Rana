@@ -14,14 +14,29 @@ cd CS3733-Rana
 Setup a virtualenv to make it so your packages are not installed globally.
 
 ```bash
-python3 -m venv .env
+virtualenv .env
 ```
 
 Source the newly created virtualenv to install all required pip packages.
 
+### Linux/Mac
 ```bash
 source .enb/bin/activate
 ```
+
+### Windows
+
+First, you will need to change your PowerShell execution policty to run the script. Open PowerShell as an `Administrator` and run the following.
+```bash
+Set-ExecutionPolicy Unrestricted
+```
+
+Now cd into the project directory and run the following in in a normal, non-administrator PowerShell.
+```bash
+.\.env\Scripts\activate
+```
+
+This will launch the virtual enviroment for the project. Within this environment you can install all the required packages without them being installed globally.
 
 Install all required packages in `requirements.txt`.
 

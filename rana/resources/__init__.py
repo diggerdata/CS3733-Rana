@@ -1,1 +1,1 @@
-from .foo import Foo
+from .foo import foo_blueprint
