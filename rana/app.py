@@ -4,7 +4,7 @@ from flask import Flask, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
-from rana.resources import foo_blueprint
+from resources import foo_blueprint
 
 app = Flask(__name__)
 CORS(app)
@@ -22,3 +22,6 @@ db = SQLAlchemy(app)
 
 # add blueprints here
 app.register_blueprint(foo_blueprint)
+
+if __name__ == '__main__':
+    app.run(host='localhost', port=5000)
