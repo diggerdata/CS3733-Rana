@@ -9,7 +9,8 @@ class Config(object):
 
 class ProductionConfig(Config):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = 'whatever it is'
+    # Figure out what this is:
+    SQLALCHEMY_DATABASE_URI = 'mysql://scott:tiger@localhost/mydatabase'
 
 class StagingConfig(Config):
     DEVELOPMENT = True
@@ -19,7 +20,7 @@ class StagingConfig(Config):
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///dev/test.db'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///db/test.db'
 
 
 class TestingConfig(Config):
