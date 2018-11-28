@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block title %} Create Meeting {% endblock title %}
+{% block content %}
+    <!--
+        Should be able to search for time slots using a filters
+    -->
+
+    <form method="POST">
+        <fieldset>
+            <legend>Create Meeting</legend>
+            User Name: <input type="text" name="userName">
+            User Email: <input type="email" name="userEmail">
+            <!--
+                Need to add timeslot that was selected
+            -->
+            <button type="submit">Set Meeting</button>
+        </fieldset>
+    </form>
+
+    <!--
+        Need to have a meeting selected
+    -->
+    <button type="button">Cancel Meeting</button>
+{% endblock content %}

@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block title %} Create Schedule {% endblock title %}
+{% block content %}
+    <form method="POST">
+        <fieldset>
+            <legend>Create Schedule</legend>
+            Schedule Name: <input type="text" name="scheduleName">
+            Start Date: <input type="date" name="startDate">
+            End Date: <input type="date" name="endDate">
+            Start Time: <input type="time" name="startTime">
+            End Time: <input type="time" name="endTime">
+            Slot Duration: <select name="slotDuration">
+                <option value="10">15</option>
+                <option value="15">15</option>
+                <option value="30">30</option>
+                <option value="45">15</option>
+                <option value="60">30</option>
+            </select>
+            User Name: <input type="text" name="userName">
+            User Email: <input type="email" name="userEmail">
+            <button type="submit">Create Schedule</button>
+        </fieldset>
+    </form>
+{% endblock content %}

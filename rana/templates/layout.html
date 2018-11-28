@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% if title %}
+        <title>Scheduler App - {{ title }}</title>
+    {% else %}
+        <title>Scheduler App</title>
+    {% endif %}
+</head>
+
+<body>
+    {% block content %}{% endblock %}
+</body>
+</html>

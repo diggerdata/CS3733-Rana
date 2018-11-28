@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
@@ -25,3 +25,14 @@ from rana.resources import schedule_blueprint
 
 # add blueprints here
 app.register_blueprint(schedule_blueprint)
+
+# sites
+@app.route('/')
+@app.route('/base')
+def index():
+    return render_template('index.html')
+
+@app.route('/otherview')
+def createschedule():
+    return render_template('createschedule.html')
+
