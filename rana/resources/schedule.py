@@ -51,7 +51,6 @@ class ScheduleAPI(MethodView):
                     )
                     db.session.add(user)
                 db.session.commit()
-                print(schedule.timeslots)
                 resp = {
                     'status': 'success',
                     'message': 'Successfully created schedule.',
