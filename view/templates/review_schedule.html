@@ -8,6 +8,14 @@
 	#toggleBtn, #cancelBtn {
 		disabled:false;
 	}
+
+	.availableSlot {
+		background-color: lightgreen;
+	}
+
+	.unavailableSlot {
+		background-color: red;
+	}
 	
 </style>
 <head>
@@ -36,7 +44,19 @@
 	<br>
 	
 	<div id="calendarView">
-		<!-- calendar view -->
+		<table id="calendar">
+			<thead id="calendarHead">
+				<th>Time</th>
+				<th>Monday</th>
+				<th>Tuesday</th>
+				<th>Wednesday</th>
+				<th>Thursday</th>
+				<th>Friday</th>
+			</thead>
+			<tbody id="calendarBody">
+				<!-- Add body -->
+			</tbody>
+		</table>
 	</div>
 	
 	<br>
