@@ -1,6 +1,6 @@
 from flask import Blueprint, request, make_response, jsonify
 from flask.views import MethodView
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from ..models import Schedule, User, TimeSlot
 from .. import db
@@ -9,17 +9,24 @@ schedule_blueprint = Blueprint('schedule', __name__)
 
 class ScheduleAPI(MethodView):
     def get(self, schedule_id):
-        """Get a schedule by a schedule ID."""
+        """Get a schedule by a schedule ID and a week of the first monday."""
+        start_time = datetime.strptime(request.args.get('week'), '%Y-%m-%dT%H:%M:%S.%fZ')
+        end_time = start_time + timedelta(days=5)
         schedule = Schedule.query.filter_by(id=schedule_id).first()
         if schedule:
+            timeslots = TimeSlot.query.with_parent(schedule).filter(TimeSlot.start_date.between(start_time, end_time)).all()
             resp = {
                 'name': schedule.name,
+                'start_time': schedule.start_date.hour,
+                'end_time': schedule.end_date.hour,
+                'start_weekday': schedule.start_date.weekday(),
+                'duration': schedule.duration,
                 'timeslots': [{
                         'id': ts.id, 
                         'start_date': ts.start_date, 
                         'duration': ts.duration, 
                         'available': ts.available
-                    } for ts in Schedule.query.filter_by(id=schedule.id).first().timeslots]
+                    } for ts in timeslots]
             }
             return make_response(jsonify(resp)), 201
         else:
@@ -55,17 +62,7 @@ class ScheduleAPI(MethodView):
                     'status': 'success',
                     'message': 'Successfully created schedule.',
                     'schedule_id': schedule.id,
-                    'secret_code': schedule.secret_code,
-                    'start_time': schedule.start_date.hour,
-                    'end_time': schedule.end_date.hour,
-                    'start_weekday': schedule.start_date.weekday(),
-                    'duration': schedule.duration,
-                    'timeslots': [{
-                        'id': ts.id, 
-                        'start_date': ts.start_date, 
-                        'duration': ts.duration, 
-                        'available': ts.available
-                    } for ts in Schedule.query.filter_by(id=schedule.id).first().timeslots]
+                    'secret_code': schedule.secret_code
                 }
                 return make_response(jsonify(resp)), 201
             except Exception as e:
