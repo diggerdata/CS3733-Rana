@@ -38,11 +38,41 @@ function showTimeSlots() {
 
 		// If the response is ok, put the data in the table
 		if (request.status >= 200 && request.status < 400) {
-			console.log(data.name);
-			
 			// Get the calendarView <table> element with id="calendar"
-			var calenderTable = document.getElementById("calendarBody");
+			var calenderBody = document.getElementById("calendarBody");
 
+			// The first column will contain the date information
+			// Then for each of the days in the week (Mon-Fri), add the TimeSlot's availability to a new cell in the table
+			for (colNum = 0; colNum < 6; colNum++) {
+				// In the first column, add the time
+				if (colNum == 0) {
+					// Keep track of the slots that have been used so far
+					var slot = 0;
+
+					// Calculate the maximum number of rows, based on the number of TimeSlots per day
+					var maxRow = data.timeslots.length / 5;
+					
+					// For each row in the table, fill in the timeslot data
+					for (rowNum = 0; rowNum < maxRow; rowNum++) {
+						// Create a new empty row in the table
+						var row = calenderBody.insertRow(rowNum);
+					
+						// Create a new cell <td> element at the current row and column
+						var cell = row.insertCell(colNum);
+						cell.innerHTML = data.timeslots[slot].start_date;
+						slot++;
+					}
+				} else {
+					rowNum = 0;
+					for (rowNum; rowNum < maxRow; rowNum++) {
+						var cell = calenderBody.rows[rowNum].insertCell(colNum);
+						cell.innerHTML = data.timeslots[slot].start_date;
+						slot++;
+					}
+				}
+			}
+
+			/*
 			// Keep track of the slots that have been used so far
 			var slot = 0;
 
@@ -53,10 +83,10 @@ function showTimeSlots() {
 			// For each row in the table, fill in the timeslot data
 			for (rowNum = 0; rowNum < maxRow; rowNum++) {
 				// Create a new empty row in the table
-				var row = calenderTable.insertRow(rowNum);
-
-				// For each of the days in the week (Mon-Fri), add the TimeSlot's availability to a new cell in the table
+				var row = calenderBody.insertRow(rowNum);
+			
 				// The first column will contain the date information
+				// Then for each of the days in the week (Mon-Fri), add the TimeSlot's availability to a new cell in the table
 				for (colNum = 0; colNum < 6; colNum++) {
 					// Create a new cell <td> element at the current row and column
 					var cell = row.insertCell(colNum);
@@ -67,17 +97,17 @@ function showTimeSlots() {
 					} else { // For the other columns, add the availability
 						// If the TimeSlot is available, show this. Otherwise, show "Unavailable"
 						if (data.timeslots[slot].available) {
-							cell.innerHTML = "Available";
+							cell.innerHTML = data.timeslots[slot].start_date;
 							cell.className = "availableSlot";
 						} else {
-							cell.innerHTML = "Unavailable";
+							cell.innerHTML = data.timeslots[slot].start_date;
 							cell.className = "unavailableSlot";
 						}
 						// Increment the current TimeSlot counter
 						slot++;
 					}
 				}
-			}
+			} */
 		} else {
 			// Error handling
 		}
