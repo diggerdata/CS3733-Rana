@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<style>
+	.cal-btn, #hideCal {
+		display:none;
+	}
+	
+	#toggleBtn, #cancelBtn {
+		disabled:false;
+	}
+	
+</style>
+<head>
+	<!-- meta charset -->
+	<title>Scheduler App - Review Schedule</title>
+	<!-- css -->
+	<script src="reviewscheduleScript.js"></script>
+	
+</head>
+
+<body>
+	
+	<div>
+		<button type="button">Share</button>
+	</div>
+	
+	<br>
+	
+	<div>
+		<button id="showCal" type="button" name="showCalendar" onclick="return toggleCalendar(true)">Show Calendar</button>
+		<button id="hideCal" type="button" name="hideCalendar" onclick="return toggleCalendar(false)">Hide Calendar</button>
+		<button class= "cal-btn" type="button" name="previousWeek" onclick="previousWeek()">Previous</button>
+		<button class= "cal-btn" type="button" name="nextWeek" onclick="nextWeek()">Next</button>
+	</div>
+	
+	<br>
+	
+	<div id="calendarView">
+		<!-- calendar view -->
+	</div>
+	
+	<br>
+	
+	<div>
+		<form method="post">
+			<fieldset>
+				<legend>Extend Dates</legend>
+				<!--
+					Place current start date and end date as place holders?
+				-->
+				Start Date: <input type="date" name="startDate">
+				End Date: <input type="date" name="endDate">
+				<button type="submit">Extend</button>
+			</fieldset>
+		</form>
+	</div>
+	
+	<br>
+	
+	<div>
+		<button id="toggleBtn" type="button">Toggle Availability</button>
+	</div>
+	
+	<br>
+	
+	<div>
+		<button id="cancelBtn" type="button">Cancel Meeting</button>
+	</div>
+	
+	<br>
+	
+	<div>
+		<button type="button" name="deleteSchedule" onclick="deleteSchedule()">Delete Schedule</button>
+	</div>
+	
+</body>
+</html>

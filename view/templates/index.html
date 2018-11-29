@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- meta charset -->
+	<title>Scheduler App - Home</title>
+	<!-- css -->
+	<script src="mainScript.js"></script>
+	
+</head>
+
+<body>
+  
+    <div>
+        <a href="schedule.html">
+			<button type="button">Create Schedule</button>
+		</a>
+    </div>
+	
+	<br>
+	
+	<div>
+		<form name= "reviewForm" method="post" onsubmit="return validateCode()" action="review_schedule.html">
+			<fieldset>
+				<legend>Review</legend>
+				Secret Code: <input type="text" name="secretCode" placeholder="Secret Code" required>
+				<button type="submit">Review</button>
+			</fieldset>
+		</form>
+	</div>
+	
+	<br>
+	
+	<div>
+		<a href="sysadmin.html">
+			<button type="button">SysAdmin</button>
+		</a>
+	</div>
+    
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<style>
+	.cal-btn, #hideCal {
+		display:none;
+	}
+	
+</style>
+<head>
+	<!-- meta charset -->
+	<title>Scheduler App - Review Meeting</title>
+	<!-- css -->
+	<script src="reviewmeetingScript.js"></script>
+	
+</head>
+
+<body>
+
+	<div>
+		<button id="showCal" type="button" name="showCalendar" onclick="return toggleCalendar(true)">Show Calendar</button>
+		<button id="hideCal" type="button" name="hideCalendar" onclick="return toggleCalendar(false)">Hide Calendar</button>
+		<button class= "cal-btn" type="button" name="previousWeek" onclick="previousWeek()">Previous</button>
+		<button class= "cal-btn" type="button" name="nextWeek" onclick="nextWeek()">Next</button>
+	</div>
+	
+	<br>
+	
+	<div id="calendarView">
+		<!-- calendar view -->
+	</div>
+
+	<div>
+		<form method="post">
+			<fieldset>
+				<legend>Create Meeting</legend>
+				User Name: <input type="text" name="userName" placeholder="Username">
+				User Email: <input type="email" name="userEmail" placeholder="Email">
+				<!--
+					Need to have an empty timeslot selected
+				-->
+				<button type="submit">Set Meeting</button>
+			</fieldset>
+		</form>
+	</div>
+	
+	<br>
+	
+	<div>
+		<!--
+			Should be able to search for time slots using a filters
+		-->
+	</div>
+	
+	<div>
+		<!--
+			Need to have a meeting selected
+		-->
+		<button type="button">Cancel Meeting</button>	
+	</div>
+    
+
+    
+    
+    
+</body>
+</html>
