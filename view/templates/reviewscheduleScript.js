@@ -56,14 +56,26 @@ function showTimeSlots() {
 				var row = calenderTable.insertRow(rowNum);
 
 				// For each of the days in the week (Mon-Fri), add the TimeSlot's availability to a new cell in the table
-				for(day = 0; day < 5; day++) {
-					var cell = row.insertCell(day);
-					if (data.timeslots[slot].available) {
-						cell.innerHTML = "Available";
-					} else {
-						cell.innerHTML = "Unavailable";
+				// The first column will contain the date information
+				for (colNum = 0; colNum < 6; colNum++) {
+					// Create a new cell <td> element at the current row and column
+					var cell = row.insertCell(colNum);
+					
+					// In the first column, add the time
+					if (colNum == 0) {
+						cell.innerHTML = data.timeslots[slot].start_date;
+					} else { // For the other columns, add the availability
+						// If the TimeSlot is available, show this. Otherwise, show "Unavailable"
+						if (data.timeslots[slot].available) {
+							cell.innerHTML = "Available";
+							cell.className = "availableSlot";
+						} else {
+							cell.innerHTML = "Unavailable";
+							cell.className = "unavailableSlot";
+						}
+						// Increment the current TimeSlot counter
+						slot++;
 					}
-					slot++;
 				}
 			}
 		} else {
