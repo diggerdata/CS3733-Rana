@@ -59,14 +59,31 @@ function showTimeSlots() {
 					
 						// Create a new cell <td> element at the current row and column
 						var cell = row.insertCell(colNum);
+
+						// Set the cell's contents
 						cell.innerHTML = data.timeslots[slot].start_date;
+
+						// Increment the current slot counter
 						slot++;
 					}
-				} else {
-					rowNum = 0;
-					for (rowNum; rowNum < maxRow; rowNum++) {
-						var cell = calenderBody.rows[rowNum].insertCell(colNum);
+					slot = 0;
+				} else {					
+					// For each row in the table, add the TimeSlots for the current column
+					for (rowNum = 0; rowNum < maxRow; rowNum++) {
+						// Create a new cell <td> element at the current row and column
+						var cell = calendarBody.rows[rowNum].insertCell(colNum);
+
+						// Set the cell's contents
 						cell.innerHTML = data.timeslots[slot].start_date;
+						
+						// If the TimeSlot is available, show this. Otherwise, show "Unavailable"
+						if (data.timeslots[slot].available) {
+							cell.className = "availableSlot";
+						} else {
+							cell.className = "unavailableSlot";
+						}
+
+						// Increment the current slot counter
 						slot++;
 					}
 				}
