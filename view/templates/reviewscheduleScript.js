@@ -6,6 +6,31 @@ function toggleCalendar(arg) {
 	var hideDiv = document.getElementById("hideCal");
 	
 	if (arg){
+		timeSlotsData = showTimeSlots();
+		if (timeSlotsData) {
+			// Get the calendarView <table> element with id="calendar"
+			var calenderTable = document.getElementById("calendar");
+
+			// Keep track of the slots that have been used so far
+			var slot = 0;
+
+			// Calculate the maximum number of rows, from the lenght of time for TimeSlots and the duration of timeslots
+			// var maxRow = (endTime - startTime) / (duration / 60);
+
+			// For each row in the table, fill in the timeslot data
+			for (rowNum = 0; rowNum < maxRow; rowNum++) {
+				// Create a new empty row in the table
+				var row = calenderTable.insertRow(slot);
+
+				// For each of the days in the week (Mon-Fri), add the TimeSlots
+				for(day = 0; day < 5; day++) {
+					var cell = row.insertCell(day);
+					cell.innerHTML = timeSlotsData[slot];
+					slot++;
+				}
+			}
+			
+		}
 
 		for (i = 0; i < weekButt.length; i++) {
 			weekButt[i].style.display = 'block';
