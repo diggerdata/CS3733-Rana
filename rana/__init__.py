@@ -3,6 +3,7 @@ import os
 from flask import Flask, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from rana.views import functionality_blueprint
 
 
 app = Flask(__name__)
@@ -24,4 +25,4 @@ db = SQLAlchemy(app)
 from rana.resources import schedule_blueprint
 
 # add blueprints here
-app.register_blueprint(schedule_blueprint)
+app.register_blueprint(functionality_blueprint)

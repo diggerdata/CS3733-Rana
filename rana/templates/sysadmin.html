@@ -1,17 +1,7 @@
 {% extends "layout.html" %}
 {% block title %} Sys Admin {% endblock title %}
 {% block content %}
-    <form method="POST">
-        <fieldset>
-            <legend>Login</legend>
-            Secret Code: <input type="text" name="secretCode">
-            <button type="submit">Login</button>
-        </fieldset>
-    </form>
-    
-    <!--
-        If correct secret code
-    -->
+    {% if secretCode %}
     <form method="POST">
         <fieldset>
                 Days Old: <input type="number" name="daysOldSchedule">
@@ -25,6 +15,19 @@
             <button type="submit">Get List</button>
         </fieldset>
     </form>
+    {% else %}
+    <form action="/sysadmin" method="POST">
+        <fieldset>
+            <legend>Login</legend>
+            Secret Code: <input type="text" name="secretCode">
+            <button type="submit">Login</button>
+        </fieldset>
+    </form>
+    {% endif %}
+    
+    <!--
+        If correct secret code
+    -->
 
     <!--
         Should return a list of schedules created in past N hours

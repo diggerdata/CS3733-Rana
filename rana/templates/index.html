@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+    <!-- <form action="/schedule">
+        <button type="submit">Create Schedule</button>
+    </form> -->
+  
+    <div>
+        <a href={{ url_for('buttons.c_schedule') }} class="semi-transparent-button" role="button"><button type="button">Create Schedule</button></a>
+    </div>
+    
+    <form method="POST">
+        <fieldset>"
+            Secret Code: <input type="text" name="secretCode">
+            <button type="submit">Review Schedule</button>
+        </fieldset>
+    </form>
+    
+    <form method="POST">
+        <button type="button">SysAdmin</button>
+    </form>
+    
+{% endblock content %}
