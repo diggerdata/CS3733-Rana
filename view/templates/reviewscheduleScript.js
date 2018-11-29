@@ -6,6 +6,7 @@ function toggleCalendar(arg) {
 	var hideDiv = document.getElementById("hideCal");
 	
 	if (arg){
+
 		for (i = 0; i < weekButt.length; i++) {
 			weekButt[i].style.display = 'block';
 		}
@@ -22,6 +23,27 @@ function toggleCalendar(arg) {
 	}
 	return false;
 	
+}
+
+function showTimeSlots() {
+	// Create new request
+	var request = new XMLHttpRequest();
+
+	// Make GET request
+	request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/1?week=2011-04-18T00:00:00.00Z', true);
+	request.onload = function getTimeSlots() {
+		// Access JSON data
+		var data = JSON.parse(this.response);
+
+		// If the response is ok, put the data in the table
+		if (request.status >= 200 && request.status < 400) {
+			return data;
+		} else {
+			// Error handling
+		}
+	}
+
+	request.send();
 }
 
 function previousWeek() {
