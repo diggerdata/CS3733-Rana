@@ -55,10 +55,14 @@ function showTimeSlots() {
 				// Create a new empty row in the table
 				var row = calenderTable.insertRow(rowNum);
 
-				// For each of the days in the week (Mon-Fri), add the TimeSlots
+				// For each of the days in the week (Mon-Fri), add the TimeSlot's availability to a new cell in the table
 				for(day = 0; day < 5; day++) {
 					var cell = row.insertCell(day);
-					cell.innerHTML = "Test";//timeSlotsData[slot];
+					if (data.timeslots[slot].available) {
+						cell.innerHTML = "Available";
+					} else {
+						cell.innerHTML = "Unavailable";
+					}
 					slot++;
 				}
 			}
