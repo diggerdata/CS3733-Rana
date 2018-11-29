@@ -6,7 +6,9 @@ function toggleCalendar(arg) {
 	var hideDiv = document.getElementById("hideCal");
 	
 	if (arg){
-		var timeSlotsData = showTimeSlots();
+		if (document.getElementById("calendarBody").children.length <= 1) {
+			showTimeSlots();
+		}
 
 		for (i = 0; i < weekButt.length; i++) {
 			weekButt[i].style.display = 'block';
