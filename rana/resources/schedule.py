@@ -20,6 +20,7 @@ class ScheduleAPI(MethodView):
             if sent_secret_code == schedule.secret_code:
                 timeslots = TimeSlot.query.with_parent(schedule).filter(TimeSlot.start_date.between(start_time, end_time)).all()
                 resp = {
+                    'status': 'success',
                     'name': schedule.name,
                     'start_time': schedule.start_date.hour,
                     'end_time': schedule.end_date.hour,
