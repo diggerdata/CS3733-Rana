@@ -16,7 +16,7 @@
 <body>
 	
 	<div>
-		<form name= "loginForm" onsubmit="return validateCode()" method="get">
+		<form name= "loginForm" onsubmit="return validateCode()">
 			<fieldset>
 				<legend>Login</legend>
 				Secret Code: <input type="text" name="secretCode" required>
@@ -30,7 +30,7 @@
 	<div id="sysadminAccess">
 	
 		<div id="deleteForm">
-			<form method="delete">
+			<form name="deleteSchedulesForm">
 				<fieldset>
 						<legend>Delete Old Activity</legend>
 						Days Old: <input type="number" name="daysOldSchedule">
@@ -42,7 +42,7 @@
 		<br>
 		
 		<div id="reportForm">
-			<form method="get">
+			<form name="reportActivityForm">
 				<fieldset>
 					<legend>Report Activity</legend>
 					Hours: <input type="number" name="hoursCreatedSchedule">
