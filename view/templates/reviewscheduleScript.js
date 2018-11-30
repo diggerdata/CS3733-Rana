@@ -1,4 +1,21 @@
+var schedule_url = window.location.href;
+var secretcode = "";
+var id = "";
+validatePage();
 
+function validatePage(){
+	var n = schedule_url.indexOf(".html?");
+	if (n < 0){
+		alert("Need to have a secret code to review any schedule!");
+		window.location.replace("index.html");
+	} else {
+		var index = n+6;
+		secretcode = schedule_url.substring(index, index+10);
+		id = schedule_url.substring(index+10);
+	}
+}
+
+console.log(schedule_url);
 function toggleCalendar(arg) {
 	var calDiv = document.getElementById("calendarView");
 	var weekButt = document.getElementsByClassName("cal-btn");
@@ -33,13 +50,17 @@ function showTimeSlots() {
 	var request = new XMLHttpRequest();
 
 	// Make GET request
-	request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/2?week=2011-04-18T00:00:00.00Z', true);
-	request.setRequestHeader('Authorization', 'ywoAcCBGpM');
+	// request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/2?week=2011-04-18T00:00:00.00Z', true);
+	// request.setRequestHeader('Authorization', 'ywoAcCBGpM');
+	console.log('https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+id);
+	request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/'+id, true);
+	request.setRequestHeader('Authorization', secretcode);
 	// console.log('OPENED', request.status);
 	request.onload = function () {
 		// console.log('DONE', request.status);
 		// Access JSON data
 		var data = JSON.parse(this.response);
+		console.log(data);
 
 		// If the response is ok, put the data in the table
 		if (request.status >= 200 && request.status < 400) {
@@ -72,7 +93,16 @@ function showTimeSlots() {
 						// cell.innerHTML = data.timeslots[slot].start_date.substring(n-2, n+3);
 						// var slotTime = new Date(data.timeslots[slot].start_date);
 						// cell.innerHTML = data.timeslots[slot].start_date
+						// var dateO = data.timeslots[slot].start_date;
+						// console.log("Before1: " + dateO);
+						// dateE = dateO.replace(":00Z", ".00Z");
+						// console.log("after: " + dateE);
+						// dateO = dateO + ".Z";
+						// console.log("After: " + dateO);
 						var slotTime = new Date(data.timeslots[slot].start_date);
+						// var slotTime = new Date(dateE);
+						
+						// console.log("Slot Time:" + dateO);
 						if (slotTime.getMinutes() == 0) {
 							cell.innerHTML = slotTime.getHours() +":"+ slotTime.getMinutes() +"0";
 						} else {
@@ -90,7 +120,7 @@ function showTimeSlots() {
 						var cell = calendarBody.rows[rowNum].insertCell(colNum);
 
 						// Set the cell's contents
-						// cell.innerHTML = data.timeslots[slot].start_date;
+						cell.innerHTML = data.timeslots[slot].start_date;
 						
 						// If the TimeSlot is available, show this. Otherwise, show "Unavailable"
 						if (data.timeslots[slot].available) {
