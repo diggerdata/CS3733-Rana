@@ -60,41 +60,26 @@ function validateScheduleCreation() {
 	}
 	
 	var request = new XMLHttpRequest();
+	
+	request.responseType = "json";
 	request.open("POST", post_url, true);
-	request.send(object);
-	request.onloadend = function(){
-		if(request.readyState == XMLHttpRequest.DONE){
-			console.log(request.responseText);
-			alert("Calendar Created");
+	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+	
+	request.onload = function(){
+		if(this.response.status == "success"){
+			console.log(this.response);
+			alert("Calendar Created\nSecret Code is: "+this.response.secret_code);
 		}else{
-			alert("Failed!");
+			alert(this.response.message);
+			return false;
 		}
-		
 	};
+	
+	request.send(JSON.stringify(object));
 	
 	alert("ah");
 	
-	// var request = new XMLHttpRequest();
-	// request.open('POST', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/', true);
-	
-	// var responseObject = {};
-	// postData(`http://example.com/answer`, object)
-		// .then(data => console.log(JSON.stringify(data))) // JSON-string from `response.json()` call
-		// .catch(error => console.error(error));
-	
-	// fetch(`https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/`, object).then(function(response){
-		// console.log(response.json());
-	// });
-	
-	// postData(`https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/`, object)
-	// .then(data => console.log("me")) // JSON-string from `response.json()` call
-	// .catch(error => console.error(error));
-	
-	// console.log(JSON.stringify(responseObject));
-	// alert("complete\n");
-	
-	// send information to API and create schedule
-	// once created, then approve submission
+	return false;
 }
 
 // function postData(url = ``, data = {}) {
