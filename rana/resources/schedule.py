@@ -15,32 +15,39 @@ class ScheduleAPI(MethodView):
         schedule = Schedule.query.filter_by(id=schedule_id).first()
         if schedule:
             sent_secret_code = None
+            user_type = None
             if 'Authorization' in request.headers:
                 sent_secret_code = request.headers.get('Authorization')
+            else:
+                user_type = 'participant'
+            
             if sent_secret_code == schedule.secret_code:
-                timeslots = TimeSlot.query.with_parent(schedule).filter(TimeSlot.start_date.between(start_time, end_time)).all()
-                resp = {
-                    'status': 'success',
-                    'name': schedule.name,
-                    'start_time': schedule.start_date.hour,
-                    'end_time': schedule.end_date.hour,
-                    'start_weekday': schedule.start_date.weekday(),
-                    'duration': schedule.duration,
-                    'user_type': schedule.user.user_type,
-                    'timeslots': [{
-                            'id': ts.id, 
-                            'start_date': ts.start_date.strftime('%Y-%m-%dT%H:%M:%SZ'), 
-                            'duration': ts.duration, 
-                            'available': ts.available
-                        } for ts in timeslots]
-                }
-                return make_response(jsonify(resp)), 201
+                user_type = 'organizer'
             else:
                 resp = {
                     'status': 'fail',
                     'message': 'Authorization failed. Please enter a valid secret code.',
                 }
                 return make_response(jsonify(resp)), 202
+            
+            timeslots = TimeSlot.query.with_parent(schedule).filter(TimeSlot.start_date.between(start_time, end_time)).all()
+            resp = {
+                'status': 'success',
+                'name': schedule.name,
+                'start_time': schedule.start_date.hour,
+                'end_time': schedule.end_date.hour,
+                'start_weekday': schedule.start_date.weekday(),
+                'duration': schedule.duration,
+                'user_type': user_type,
+                'timeslots': [{
+                        'id': ts.id, 
+                        'start_date': ts.start_date.strftime('%Y-%m-%dT%H:%M:%SZ'), 
+                        'duration': ts.duration, 
+                        'available': ts.available
+                    } for ts in timeslots]
+            }
+            return make_response(jsonify(resp)), 201
+            
         else:
             resp = {
                 'status': 'fail',
