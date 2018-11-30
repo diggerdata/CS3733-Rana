@@ -10,8 +10,6 @@ schedule_blueprint = Blueprint('schedule', __name__)
 class ScheduleAPI(MethodView):
     def get(self, schedule_id):
         """Get a schedule by a schedule ID and a week of the first monday."""
-        start_time = datetime.strptime(request.args.get('week'), '%Y-%m-%dT%H:%M:%S.%fZ')
-        end_time = start_time + timedelta(days=5)
         schedule = Schedule.query.filter_by(id=schedule_id).first()
         if schedule:
             sent_secret_code = None
@@ -29,8 +27,15 @@ class ScheduleAPI(MethodView):
                     'message': 'Authorization failed. Please enter a valid secret code.',
                 }
                 return make_response(jsonify(resp)), 202
-            
-            timeslots = TimeSlot.query.with_parent(schedule).filter(TimeSlot.start_date.between(start_time, end_time)).all()
+            timeslots = None
+            if request.args.get('week'):
+                start_time = datetime.strptime(request.args.get('week'), '%Y-%m-%dT%H:%M:%S.%fZ')
+                end_time = start_time + timedelta(days=5)
+                timeslots = TimeSlot.query.with_parent(schedule).filter(TimeSlot.start_date.between(start_time, end_time)).all()
+            else:
+                start_time = schedule.start_date
+                end_time = start_time + timedelta(days=(5-start_time.weekday()))
+                timeslots = TimeSlot.query.with_parent(schedule).filter(TimeSlot.start_date.between(start_time, end_time)).all()
             resp = {
                 'status': 'success',
                 'name': schedule.name,
