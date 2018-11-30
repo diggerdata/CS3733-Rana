@@ -33,8 +33,11 @@ function showTimeSlots() {
 	var request = new XMLHttpRequest();
 
 	// Make GET request
-	request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/1?week=2011-04-18T00:00:00.00Z', true);
+	request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/2?week=2011-04-18T00:00:00.00Z', true);
+	request.setRequestHeader('Authorization', 'ywoAcCBGpM');
+	// console.log('OPENED', request.status);
 	request.onload = function () {
+		// console.log('DONE', request.status);
 		// Access JSON data
 		var data = JSON.parse(this.response);
 
@@ -50,7 +53,9 @@ function showTimeSlots() {
 				if (colNum == 0) {
 					// Keep track of the slots that have been used so far
 					var slot = 0;
-
+					
+					// console.log(data.message);
+					
 					// Calculate the maximum number of rows, based on the number of TimeSlots per day
 					var maxRow = data.timeslots.length / 5;
 					
@@ -63,8 +68,17 @@ function showTimeSlots() {
 						var cell = row.insertCell(colNum);
 
 						// Set the cell's contents
-						cell.innerHTML = data.timeslots[slot].start_date;
-
+						// var n = data.timeslots[slot].start_date.indexOf(":");
+						// cell.innerHTML = data.timeslots[slot].start_date.substring(n-2, n+3);
+						// var slotTime = new Date(data.timeslots[slot].start_date);
+						// cell.innerHTML = data.timeslots[slot].start_date
+						var slotTime = new Date(data.timeslots[slot].start_date);
+						if (slotTime.getMinutes() == 0) {
+							cell.innerHTML = slotTime.getHours() +":"+ slotTime.getMinutes() +"0";
+						} else {
+							cell.innerHTML = slotTime.getHours() +":"+ slotTime.getMinutes();
+						}
+						
 						// Increment the current slot counter
 						slot++;
 					}
@@ -76,7 +90,7 @@ function showTimeSlots() {
 						var cell = calendarBody.rows[rowNum].insertCell(colNum);
 
 						// Set the cell's contents
-						cell.innerHTML = data.timeslots[slot].start_date;
+						// cell.innerHTML = data.timeslots[slot].start_date;
 						
 						// If the TimeSlot is available, show this. Otherwise, show "Unavailable"
 						if (data.timeslots[slot].available) {
