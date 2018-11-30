@@ -25,6 +25,7 @@ class ScheduleAPI(MethodView):
                     'end_time': schedule.end_date.hour,
                     'start_weekday': schedule.start_date.weekday(),
                     'duration': schedule.duration,
+                    'user_type': schedule.user.user_type,
                     'timeslots': [{
                             'id': ts.id, 
                             'start_date': ts.start_date.strftime('%Y-%m-%dT%H:%M:%SZ'), 
@@ -67,6 +68,7 @@ class ScheduleAPI(MethodView):
                         user_type='organizer'
                     )
                     db.session.add(user)
+                user.schedules.append(schedule)
                 db.session.commit()
                 resp = {
                     'status': 'success',
