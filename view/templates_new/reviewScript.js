@@ -32,14 +32,16 @@ function tableFunction(){
       table.rows[i].cells[j].onclick = function(){
         rIndex = this.parentElement.rowIndex;
         cIndex = this.cellIndex;
+        console.log(this.innerHTML);
         console.log("Row: " + rIndex + ", Cell: " + cIndex);
       };
+
     }
   }
 }
 
 function selectSlot(){
-
+  // TODO: find out how to select a slot
 }
 
 function getSchedule(){
@@ -174,7 +176,8 @@ function showTimeSlots() {
 						var cell = calendarBody.rows[rowNum].insertCell(colNum);
 
 						// Set the cell's contents
-						cell.innerHTML = data.timeslots[slot].start_date;
+            // TODO: Find a way to not show the innerHTML tag, but have it available to collect when selecting the cell
+						cell.innerHTML = data.timeslots[slot].id;
 
 						// If the TimeSlot is available, show this. Otherwise, show "Unavailable"
 						if (data.timeslots[slot].available) {
