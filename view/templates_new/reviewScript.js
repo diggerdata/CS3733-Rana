@@ -40,8 +40,10 @@ function tableFunction(){
   }
 }
 
-function selectSlot(){
-  // TODO: find out how to select a slot
+function selectSlot(id){
+  // TODO: only select slot if user name is put inside
+  console.log("free slot selected: "+id);
+  // TODO: send data to calendar
 }
 
 function getSchedule(){
@@ -174,14 +176,22 @@ function showTimeSlots() {
 					for (rowNum = 0; rowNum < maxRow; rowNum++) {
 						// Create a new cell <td> element at the current row and column
 						var cell = calendarBody.rows[rowNum].insertCell(colNum);
+            // var btn = document.createElement('timeSlotInput');
+            // btn.type = "button";
+            // btn.className = "timeslot-btn btn";
+            // btn.value = data.timeslots[slot].id;
+            // cell.appendChild(btn);
+            // calendarBody.rows[rowNum].cells[colNum].appendChild(btn);
 
 						// Set the cell's contents
             // TODO: Find a way to not show the innerHTML tag, but have it available to collect when selecting the cell
-						cell.innerHTML = data.timeslots[slot].id;
+						// cell.innerHTML = data.timeslots[slot].id;
 
 						// If the TimeSlot is available, show this. Otherwise, show "Unavailable"
 						if (data.timeslots[slot].available) {
 							cell.className = "availableSlot";
+              var slotId = data.timeslots[slot].id;
+              cell.innerHTML = "<input type='button' value='free' width='100%' class='slot-btn' id='"+slotId+"' onClick='selectSlot(this.id)'>";
 						} else {
 							cell.className = "unavailableSlot";
 						}
@@ -201,9 +211,11 @@ function showTimeSlots() {
 }
 
 function previousWeek() {
+  // TODO: implement previous week
 }
 
 function nextWeek() {
+  // TODO: implement next week
 }
 
 function deleteSchedule() {
