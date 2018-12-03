@@ -4,7 +4,8 @@ var scheduleid = "";
 
 function validateScheduleCreation() {
 	// this is so ugly - needs refactoring
-	
+
+	// TODO better way to refactor obtaining all the elements in the Form?
 	var schedulename = document.getElementById("scheduleName").value;
 	var s_date = document.getElementById("startDate").value;
 	var e_date = document.getElementById("endDate").value;
