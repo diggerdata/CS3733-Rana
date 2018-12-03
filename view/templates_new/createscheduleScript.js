@@ -75,7 +75,7 @@ function validateScheduleCreation() {
 			scheduleid = this.response.schedule_id;
 			console.log(this.response);
 			alert("Calendar Created\nSecret Code is: "+this.response.secret_code);
-			window.location.replace("review_schedule.html?"+secretcode+""+scheduleid);
+			window.location.replace("review.html?"+secretcode+""+scheduleid);
 		}else{
 			alert(this.response.message);
 			return false;
