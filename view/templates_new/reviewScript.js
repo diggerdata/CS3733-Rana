@@ -41,8 +41,19 @@ function tableFunction(){
 }
 
 function selectSlot(id){
-  // TODO: only select slot if user name is put inside
   console.log("free slot selected: "+id);
+  var username = document.forms["createMeetingForm"]["userName"].value;
+
+  // TODO: Allow Organizer to make slots busy or free by clicking on the slot
+  if (user == "organizer"){
+    return;
+  }
+
+  if (username != ""){
+    alert("Meeting set for: "+username+" at timeslot id of: "+id);
+  } else {
+    alert("Must have a user name to set a meeting!");
+  }
   // TODO: send data to calendar
 }
 
@@ -75,14 +86,17 @@ function validateUser(){
   var organizer = document.getElementById("organizerView");
   var inituser = document.getElementById("initView");
   if (secretcode == "participant") { // Edit Meeting
+    user = "participant";
     organizer.style.display = "none";
     inituser.style.display = "block";
     participant.style.display = "block";
   } else if (secretcode == "organizer"){ // Edit Schedule
+    user = "organizer";
     participant.style.display = "none";
     inituser.style.display = "none";
     organizer.style.display = "block";
   } else {
+    user = "";
     alert("Incorrect Code");
   }
   return false;
