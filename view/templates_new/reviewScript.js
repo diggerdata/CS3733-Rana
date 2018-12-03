@@ -18,6 +18,30 @@ var user = "";
 // 	}
 // }
 
+
+function tableFunction(){
+  // Table Script
+  var table = document.getElementById("calendar");
+  var rIndex, cIndex;
+
+  // table rows
+
+  for (var i = 0; i < table.rows.length; i++){
+    // collumns
+    for (var j = 0; j < table.rows[i].cells.length; j++){
+      table.rows[i].cells[j].onclick = function(){
+        rIndex = this.parentElement.rowIndex;
+        cIndex = this.cellIndex;
+        console.log("Row: " + rIndex + ", Cell: " + cIndex);
+      };
+    }
+  }
+}
+
+function selectSlot(){
+
+}
+
 function getSchedule(){
   var request = new XMLHttpRequest();
 	request.open('GET', 'https://sqc1z962y5.execute-api.us-east-2.amazonaws.com/dev/schedule/2?week=2011-04-18T00:00:00.00Z', true);
@@ -63,7 +87,7 @@ function validateUser(){
 // console.log(schedule_url);
 function toggleCalendar(arg) {
 	var calDiv = document.getElementById("calendarView");
-	var weekButt = document.getElementsByClassName("cal-btn");
+	var weekBtn = document.getElementsByClassName("cal-btn");
 	var showDiv = document.getElementById("showCal");
 	var hideDiv = document.getElementById("hideCal");
 
@@ -72,15 +96,15 @@ function toggleCalendar(arg) {
 			showTimeSlots();
 		}
 
-		for (i = 0; i < weekButt.length; i++) {
-			weekButt[i].style.display = 'block';
+		for (i = 0; i < weekBtn.length; i++) {
+			weekBtn[i].style.display = 'block';
 		}
 		calDiv.style.display = "block";
 		showDiv.style.display = "none";
 		hideDiv.style.display = "block";
 	} else {
-		for (i = 0; i < weekButt.length; i++) {
-			weekButt[i].style.display = 'none';
+		for (i = 0; i < weekBtn.length; i++) {
+			weekBtn[i].style.display = 'none';
 		}
 		calDiv.style.display = "none";
 		hideDiv.style.display = "none";
@@ -107,9 +131,8 @@ function showTimeSlots() {
 		var data = JSON.parse(this.response);
 		console.log(data);
 
-		// If the response is ok, put the data in the table
+    // TODO: Hour Time is incorrect...
 		if (request.status >= 200 && request.status < 400) {
-			// Get the calendarView <table> element with id="calendar"
 			var calenderBody = document.getElementById("calendarBody");
 
 			// The first column will contain the date information
@@ -168,6 +191,7 @@ function showTimeSlots() {
 		} else {
 			// Error handling
 		}
+    tableFunction();
 	}
 
 	request.send();
