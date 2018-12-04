@@ -21,7 +21,8 @@ app.config.from_object(conf)
 # setup the database object
 db = SQLAlchemy(app)
 
-from rana.resources import schedule_blueprint
+from rana.resources import schedule_blueprint, meeting_blueprint
 
 # add blueprints here
 app.register_blueprint(schedule_blueprint)
+app.register_blueprint(meeting_blueprint)

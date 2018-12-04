@@ -8,8 +8,40 @@ from .. import db
 meeting_blueprint = Blueprint('meeting', __name__)
 
 class MeetingAPI(MethodView):
-    def get(self, schedule_id, meeting_id):
-        pass
+    def get(self, schedule_id, timeslot_id):
+        """Get a meeting from a timeslot and schedule id."""
+        schedule = Schedule.query_by(id=schedule_id).first()
+        if schedule:
+            timeslot = TimeSlot.query.with_parent(schedule).query_by(id=timeslot_id).first()
+            if timeslot:
+                meeting = Meeting.query.with_parent(timeslot).first()
+                if meeting:
+                    user = User.query.with_parent(meeting).first()
+                    resp = {
+                        'email': user.email,
+                        'username': user.username,
+                        'user_type': user.user_type,
+                        'meeting_id': meeting.id
+                    }
+                    return make_response(jsonify(resp)), 201
+                else:
+                    resp = {
+                        'status': 'fail',
+                        'message': 'No meeting for timeslot id {}.'.format(timeslot_id),
+                    }
+                    return make_response(jsonify(resp)), 401
+            else:
+                resp = {
+                    'status': 'fail',
+                    'message': 'Timeslot does not exist.',
+                }
+                return make_response(jsonify(resp)), 401
+        else:
+            resp = {
+                'status': 'fail',
+                'message': 'Schedule does not exist.',
+            }
+            return make_response(jsonify(resp)), 401
     
     def post(self, schedule_id, timeslot_id):
         """Create a meeting in a timeslot."""
@@ -31,6 +63,7 @@ class MeetingAPI(MethodView):
                     meeting = Meeting()
                     db.session.add(meeting)
                     timeslot.meetings.append(meeting)
+                    timeslot.available = False
                     user.meetings.append(meeting)
                     db.session.commit()
                     resp = {
@@ -58,8 +91,63 @@ class MeetingAPI(MethodView):
             }
             return make_response(jsonify(resp)), 401
 
-    def delete(self, schedule_id, meeting_id):
-        pass
+    def delete(self, schedule_id, timeslot_id, meeting_id):
+        """Cancel a meeting by schedule id, timeslot id, and meeting id."""
+        schedule = Schedule.query_by(id=schedule_id).first()
+        if schedule:
+            timeslot = TimeSlot.query.with_parent(schedule).query_by(id=timeslot_id).first()
+            if timeslot:
+                meeting = Meeting.query.with_parent(timeslot).first()
+                if meeting:
+                    sent_secret_code = None
+                    if 'Authorization' in request.headers:
+                        sent_secret_code = request.headers.get('Authorization')
+                    else:
+                        resp = {
+                            'status': 'fail',
+                            'message': 'Authorization failed. Please provide a secret code.'
+                        }
+                        return make_response(jsonify(resp)), 401
+                    if sent_secret_code == meeting.secret_code:
+                        try:
+                            db.session.delete(meeting)
+                            timeslot.available = False
+                            db.session.commit()
+                            resp = {
+                                'status': 'success',
+                                'message': 'Meeting successfully canceled.'
+                            }
+                            return make_response(jsonify(resp)), 201
+                        except Exception as e:
+                            resp = {
+                                'status': 'fail',
+                                'message': e
+                            }
+                            return make_response(jsonify(resp)), 401
+                    else:
+                        resp = {
+                            'status': 'fail',
+                            'message': 'Authorization failed. Secret code is incorrect.'
+                        }
+                        return make_response(jsonify(resp)), 401
+                else:
+                    resp = {
+                        'status': 'fail',
+                        'message': 'Meeting does not exist.',
+                    }
+                    return make_response(jsonify(resp)), 401
+            else:
+                resp = {
+                    'status': 'fail',
+                    'message': 'Timeslot does not exist.',
+                }
+                return make_response(jsonify(resp)), 401
+        else:
+            resp = {
+                'status': 'fail',
+                'message': 'Schedule does not exist.',
+            }
+            return make_response(jsonify(resp)), 401
     
 meeting_view = MeetingAPI.as_view('meeting')
 
@@ -67,5 +155,10 @@ meeting_view = MeetingAPI.as_view('meeting')
 meeting_blueprint.add_url_rule(
     '/schedule/<string:schedule_id>/timeslot/<string:timeslot_id>',
     view_func=meeting_view,
-    methods=['POST',]
+    methods=['POST', 'GET']
+)
+meeting_blueprint.add_url_rule(
+    '/schedule/<string:schedule_id>/timeslot/<string:timeslot_id>/meeting/<string:meeting_id>',
+    view_func=meeting_view,
+    methods=['DELETE',]
 )

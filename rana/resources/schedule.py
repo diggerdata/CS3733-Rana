@@ -103,14 +103,21 @@ class ScheduleAPI(MethodView):
                 }
                 return make_response(jsonify(resp)), 401
             if sent_secret_code == schedule.secret_code:
-                TimeSlot.query.with_parent(schedule).delete(synchronize_session=False)
-                db.session.delete(schedule)
-                db.session.commit()
-                resp = {
-                    'status': 'successs',
-                    'message': 'Schedule successfully deleted.'
-                }
-                return make_response(jsonify(resp)), 201
+                try:
+                    TimeSlot.query.with_parent(schedule).delete(synchronize_session=False)
+                    db.session.delete(schedule)
+                    db.session.commit()
+                    resp = {
+                        'status': 'successs',
+                        'message': 'Schedule successfully deleted.'
+                    }
+                    return make_response(jsonify(resp)), 201
+                except Exception as e:
+                    resp = {
+                        'status': 'fail',
+                        'message': e
+                    }
+                    return make_response(jsonify(resp)), 401
             else:
                 resp = {
                     'status': 'fail',
@@ -126,7 +133,7 @@ class ScheduleAPI(MethodView):
 
 schedule_view = ScheduleAPI.as_view('schedule')
 
-# add Rules for API Endpoints
+# add rules for API endpoints
 schedule_blueprint.add_url_rule(
     '/schedule/',
     view_func=schedule_view,
