@@ -8,7 +8,7 @@ class Meeting(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User')
     timeslot_id = db.Column(db.Integer, db.ForeignKey('timeslot.id'))
-    timeslot = db.relationship('TimeSlot', backref=db.backref('timeslot', lazy=True))
+    timeslot = db.relationship('TimeSlot', backref=db.backref('meetings', lazy=True))
     secret_code = db.Column(db.String(255), unique=True, nullable=False)
 
     def __init__(self):

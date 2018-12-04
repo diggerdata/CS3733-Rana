@@ -12,21 +12,6 @@ class ScheduleAPI(MethodView):
         """Get the first week of the given schedule, or the week of the given monday date."""
         schedule = Schedule.query.filter_by(id=schedule_id).first()
         if schedule:
-            # sent_secret_code = None
-            # user_type = None
-            # if 'Authorization' in request.headers:
-            #     sent_secret_code = request.headers.get('Authorization')
-            # else:
-            #     user_type = 'participant'
-            
-            # if sent_secret_code == schedule.secret_code:
-            #     user_type = 'organizer'
-            # else:
-            #     resp = {
-            #         'status': 'fail',
-            #         'message': 'Authorization failed. Please enter a valid secret code.',
-            #     }
-            #     return make_response(jsonify(resp)), 202
             timeslots = None
             if request.args.get('week'):
                 start_time = datetime.strptime(request.args.get('week'), '%Y-%m-%dT%H:%M:%S.%fZ')
@@ -43,7 +28,6 @@ class ScheduleAPI(MethodView):
                 'end_time': schedule.end_date.hour,
                 'start_weekday': schedule.start_date.weekday(),
                 'duration': schedule.duration,
-                # 'user_type': user_type,
                 'timeslots': [{
                         'id': ts.id, 
                         'start_date': ts.start_date.strftime('%Y-%m-%dT%H:%M:%SZ'), 
