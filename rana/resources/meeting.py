@@ -10,9 +10,9 @@ meeting_blueprint = Blueprint('meeting', __name__)
 class MeetingAPI(MethodView):
     def get(self, schedule_id, timeslot_id):
         """Get a meeting from a timeslot and schedule id."""
-        schedule = Schedule.query_by(id=schedule_id).first()
+        schedule = Schedule.query.filter_by(id=schedule_id).first()
         if schedule:
-            timeslot = TimeSlot.query.with_parent(schedule).query_by(id=timeslot_id).first()
+            timeslot = TimeSlot.query.with_parent(schedule).filter_by(id=timeslot_id).first()
             if timeslot:
                 meeting = Meeting.query.with_parent(timeslot).first()
                 if meeting:
@@ -46,9 +46,9 @@ class MeetingAPI(MethodView):
     def post(self, schedule_id, timeslot_id):
         """Create a meeting in a timeslot."""
         post_data = request.get_json()
-        schedule = Schedule.query_by(id=schedule_id).first()
+        schedule = Schedule.query.filter_by(id=schedule_id).first()
         if schedule:
-            timeslot = TimeSlot.query.with_parent(schedule).query_by(id=timeslot_id).first()
+            timeslot = TimeSlot.query.with_parent(schedule).filter_by(id=timeslot_id).first()
             if timeslot:
                 if timeslot.available:
                     user = User.query.filter_by(username=post_data.get('username'),
@@ -93,9 +93,9 @@ class MeetingAPI(MethodView):
 
     def delete(self, schedule_id, timeslot_id, meeting_id):
         """Cancel a meeting by schedule id, timeslot id, and meeting id."""
-        schedule = Schedule.query_by(id=schedule_id).first()
+        schedule = Schedule.query.filter_by(id=schedule_id).first()
         if schedule:
-            timeslot = TimeSlot.query.with_parent(schedule).query_by(id=timeslot_id).first()
+            timeslot = TimeSlot.query.with_parent(schedule).filter_by(id=timeslot_id).first()
             if timeslot:
                 meeting = Meeting.query.with_parent(timeslot).first()
                 if meeting:
@@ -111,7 +111,7 @@ class MeetingAPI(MethodView):
                     if sent_secret_code == meeting.secret_code:
                         try:
                             db.session.delete(meeting)
-                            timeslot.available = False
+                            timeslot.available = True
                             db.session.commit()
                             resp = {
                                 'status': 'success',
