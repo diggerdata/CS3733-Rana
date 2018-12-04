@@ -1,10 +1,9 @@
 from datetime import datetime, timedelta
-import random
-import string
 
 from .timeslot import TimeSlot
 
 from .. import db
+from ..common import secret_key
 
 class Schedule(db.Model):
     __tablename__ = 'schedules'
@@ -25,7 +24,7 @@ class Schedule(db.Model):
         self.end_date = end_date
         self.duration = duration
         self.created = datetime.now()
-        self.secret_code = self.random_str()
+        self.secret_code = secret_key()
         self.add_timeslots(self.duration)
     
     def __repr__(self):
@@ -57,7 +56,3 @@ class Schedule(db.Model):
                     self.timeslots.append(timeslot)
                     day += timedelta(minutes=self.duration)
             last_time += delta
-
-    @staticmethod
-    def random_str(length=10):
-        return ''.join(random.choice(string.ascii_letters) for x in range(length))#.upper()

@@ -9,24 +9,24 @@ schedule_blueprint = Blueprint('schedule', __name__)
 
 class ScheduleAPI(MethodView):
     def get(self, schedule_id):
-        """Get a schedule by a schedule ID and a week of the first monday."""
+        """Get the first week of the given schedule, or the week of the given monday date."""
         schedule = Schedule.query.filter_by(id=schedule_id).first()
         if schedule:
-            sent_secret_code = None
-            user_type = None
-            if 'Authorization' in request.headers:
-                sent_secret_code = request.headers.get('Authorization')
-            else:
-                user_type = 'participant'
+            # sent_secret_code = None
+            # user_type = None
+            # if 'Authorization' in request.headers:
+            #     sent_secret_code = request.headers.get('Authorization')
+            # else:
+            #     user_type = 'participant'
             
-            if sent_secret_code == schedule.secret_code:
-                user_type = 'organizer'
-            else:
-                resp = {
-                    'status': 'fail',
-                    'message': 'Authorization failed. Please enter a valid secret code.',
-                }
-                return make_response(jsonify(resp)), 202
+            # if sent_secret_code == schedule.secret_code:
+            #     user_type = 'organizer'
+            # else:
+            #     resp = {
+            #         'status': 'fail',
+            #         'message': 'Authorization failed. Please enter a valid secret code.',
+            #     }
+            #     return make_response(jsonify(resp)), 202
             timeslots = None
             if request.args.get('week'):
                 start_time = datetime.strptime(request.args.get('week'), '%Y-%m-%dT%H:%M:%S.%fZ')
@@ -43,7 +43,7 @@ class ScheduleAPI(MethodView):
                 'end_time': schedule.end_date.hour,
                 'start_weekday': schedule.start_date.weekday(),
                 'duration': schedule.duration,
-                'user_type': user_type,
+                # 'user_type': user_type,
                 'timeslots': [{
                         'id': ts.id, 
                         'start_date': ts.start_date.strftime('%Y-%m-%dT%H:%M:%SZ'), 
@@ -58,7 +58,8 @@ class ScheduleAPI(MethodView):
                 'status': 'fail',
                 'message': 'Schedule does not exist.',
             }
-            return make_response(jsonify(resp)), 202
+            return make_response(jsonify(resp)), 401
+
     def post(self):
         """Create a new schedule."""
         post_data = request.get_json()
@@ -102,7 +103,42 @@ class ScheduleAPI(MethodView):
                 'status': 'fail',
                 'message': 'Schedule already exists. Please choose a new name.',
             }
-            return make_response(jsonify(resp)), 202
+            return make_response(jsonify(resp)), 401
+
+    def delete(self, schedule_id):
+        """Delete a schedule by id, requires authorization."""
+        schedule = Schedule.query.filter_by(id=schedule_id).first()
+        if schedule:
+            sent_secret_code = None
+            if 'Authorization' in request.headers:
+                sent_secret_code = request.headers.get('Authorization')
+            else:
+                resp = {
+                    'status': 'fail',
+                    'message': 'Authorization failed. Please provide a secret code.'
+                }
+                return make_response(jsonify(resp)), 401
+            if sent_secret_code == schedule.secret_code:
+                TimeSlot.query.with_parent(schedule).delete(synchronize_session=False)
+                db.session.delete(schedule)
+                db.session.commit()
+                resp = {
+                    'status': 'successs',
+                    'message': 'Schedule successfully deleted.'
+                }
+                return make_response(jsonify(resp)), 201
+            else:
+                resp = {
+                    'status': 'fail',
+                    'message': 'Authorization failed. Secret code is incorrect.'
+                }
+                return make_response(jsonify(resp)), 401
+        else:
+            resp = {
+                'status': 'fail',
+                'message': 'Schedule does not exist.',
+            }
+            return make_response(jsonify(resp)), 401
 
 schedule_view = ScheduleAPI.as_view('schedule')
 
@@ -115,5 +151,5 @@ schedule_blueprint.add_url_rule(
 schedule_blueprint.add_url_rule(
     '/schedule/<string:schedule_id>',
     view_func=schedule_view,
-    methods=['GET',]
+    methods=['GET', 'DELETE']
 )
