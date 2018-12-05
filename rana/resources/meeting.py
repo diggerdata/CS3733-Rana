@@ -14,20 +14,27 @@ class MeetingAPI(MethodView):
         if schedule:
             timeslot = TimeSlot.query.with_parent(schedule).filter_by(id=timeslot_id).first()
             if timeslot:
-                meeting = Meeting.query.with_parent(timeslot).first()
-                if meeting:
-                    user = User.query.with_parent(meeting).first()
-                    resp = {
-                        'email': user.email,
-                        'username': user.username,
-                        'user_type': user.user_type,
-                        'meeting_id': meeting.id
-                    }
-                    return make_response(jsonify(resp)), 201
+                if timeslot.available:
+                    meeting = Meeting.query.with_parent(timeslot).first()
+                    if meeting:
+                        user = User.query.with_parent(meeting).first()
+                        resp = {
+                            'email': user.email,
+                            'username': user.username,
+                            'user_type': user.user_type,
+                            'meeting_id': meeting.id
+                        }
+                        return make_response(jsonify(resp)), 201
+                    else:
+                        resp = {
+                            'status': 'fail',
+                            'message': 'No meeting for timeslot id {}.'.format(timeslot_id),
+                        }
+                        return make_response(jsonify(resp)), 401
                 else:
                     resp = {
                         'status': 'fail',
-                        'message': 'No meeting for timeslot id {}.'.format(timeslot_id),
+                        'message': 'Timeslot not available.',
                     }
                     return make_response(jsonify(resp)), 401
             else:
@@ -53,25 +60,32 @@ class MeetingAPI(MethodView):
                 if timeslot.available:
                     user = User.query.filter_by(username=post_data.get('username'),
                                             user_type='participant').first()
-                    if not user:
-                        user = User(
-                            username=post_data.get('username'),
-                            email=post_data.get('email'),
-                            user_type='partipant'
-                        )
-                        db.session.add(user)
-                    meeting = Meeting()
-                    db.session.add(meeting)
-                    timeslot.meetings.append(meeting)
-                    timeslot.available = False
-                    user.meetings.append(meeting)
-                    db.session.commit()
-                    resp = {
-                        'status': 'success',
-                        'message': 'Meeting created.',
-                        'secret_code': meeting.secret_code
-                    }
-                    return make_response(jsonify(resp)), 201
+                    try:
+                        if not user:
+                            user = User(
+                                username=post_data.get('username'),
+                                email=post_data.get('email'),
+                                user_type='partipant'
+                            )
+                            db.session.add(user)
+                        meeting = Meeting()
+                        db.session.add(meeting)
+                        timeslot.meetings.append(meeting)
+                        timeslot.available = False
+                        user.meetings.append(meeting)
+                        db.session.commit()
+                        resp = {
+                            'status': 'success',
+                            'message': 'Meeting created.',
+                            'secret_code': meeting.secret_code
+                        }
+                        return make_response(jsonify(resp)), 201
+                    except Exception as e:
+                        resp = {
+                            'status': 'fail',
+                            'message': e
+                        }
+                        return make_response(jsonify(resp)), 401
                 else:
                     resp = {
                         'status': 'fail',

@@ -23,7 +23,7 @@ class Schedule(db.Model):
         self.start_date = start_date
         self.end_date = end_date
         self.duration = duration
-        self.created = datetime.now()
+        self.created = datetime.utcnow()
         self.secret_code = secret_key()
         self.add_timeslots(self.duration)
     
