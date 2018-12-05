@@ -26,6 +26,7 @@ class ScheduleAPI(MethodView):
                 'name': schedule.name,
                 'start_time': schedule.start_date.hour,
                 'end_time': schedule.end_date.hour,
+                'end_date': schedule.end_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                 'start_weekday': schedule.start_date.weekday(),
                 'duration': schedule.duration,
                 'timeslots': [{
@@ -56,7 +57,7 @@ class ScheduleAPI(MethodView):
                         name=post_data.get('name'),
                         start_date=datetime.strptime(post_data.get('start_date'), '%Y-%m-%dT%H:%M:%S.%fZ'),
                         end_date=datetime.strptime(post_data.get('end_date'), '%Y-%m-%dT%H:%M:%S.%fZ'),
-                        duration=
+                        duration=post_data.get('duration')
                     )
                     db.session.add(schedule)
                     user = User.query.filter_by(username=post_data.get('username'),
