@@ -9,7 +9,7 @@ from .. import db
 timeslot_blueprint = Blueprint('timeslot', __name__)
 
 class ToggleTimeslotAPI(MethodView):
-    def post(self, schedule_id, timeslot_id):
+    def post(self, schedule_id, timeslot_id, toggle):
         """Toggle a timeslot within a schedule."""
         schedule = Schedule.query.filter_by(id=schedule_id).first()
         if schedule:
@@ -26,18 +26,26 @@ class ToggleTimeslotAPI(MethodView):
                 timeslot = TimeSlot.query.with_parent(schedule).filter_by(id=timeslot_id).first()
                 if timeslot:
                     try:
-                        timeslot.available = not timeslot.available
+                        if toggle == 'open':
+                            timeslot.available = True
+                        elif toggle == 'close':
+                            timeslot.available = False
+                        else:
+                            resp = {
+                                'status': 'fail',
+                                'message': 'Provide a valid toggle (open, close).'
+                            }
+                            return make_response(jsonify(resp)), 401
                         db.session.commit()
                         resp = {
                             'status': 'success',
-                            'message': 'Timeslot toggled.',
-                            'available': timeslot.available
+                            'message': 'Timeslot toggled.'
                         }
                         return make_response(jsonify(resp)), 201
                     except Exception as e:
                         resp = {
                             'status': 'fail',
-                            'message': e
+                            'message': str(e)
                         }
                         return make_response(jsonify(resp)), 401
                 else:
@@ -86,8 +94,7 @@ class ToggleWeekTimeslotAPI(MethodView):
                         timeslots = TimeSlot.query.with_parent(schedule).filter(db.func.DATE(TimeSlot.start_date) == day).all()
                         resp = {
                             'status': 'success',
-                            'message': 'Timeslot toggled.',
-                            'available': [ts.available for ts in timeslots]
+                            'message': 'Timeslot toggled.'
                         }
                         return make_response(jsonify(resp)), 201
                     except Exception as e:
@@ -120,7 +127,7 @@ toggle_week_timeslot_view = ToggleWeekTimeslotAPI.as_view('toggle_week_timeslot_
 
 # add rules for API endpoints
 timeslot_blueprint.add_url_rule(
-    '/schedule/<string:schedule_id>/timeslot/<int:timeslot_id>/toggle',
+    '/schedule/<string:schedule_id>/timeslot/<int:timeslot_id>/<string:toggle>',
     view_func=toggle_timeslot_view,
     methods=['POST',]
 )

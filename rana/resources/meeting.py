@@ -83,7 +83,7 @@ class MeetingAPI(MethodView):
                     except Exception as e:
                         resp = {
                             'status': 'fail',
-                            'message': e
+                            'message': str(e)
                         }
                         return make_response(jsonify(resp)), 401
                 else:
@@ -135,7 +135,7 @@ class MeetingAPI(MethodView):
                         except Exception as e:
                             resp = {
                                 'status': 'fail',
-                                'message': e
+                                'message': str(e)
                             }
                             return make_response(jsonify(resp)), 401
                     else:
