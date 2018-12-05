@@ -148,7 +148,7 @@ schedule_blueprint.add_url_rule(
     methods=['POST', 'DELETE', 'GET']
 )
 schedule_blueprint.add_url_rule(
-    '/schedule/<string:schedule_id>',
+    '/schedule/<int:schedule_id>',
     view_func=schedule_view,
     methods=['GET', 'DELETE']
 )

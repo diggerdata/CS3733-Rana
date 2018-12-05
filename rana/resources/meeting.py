@@ -167,12 +167,12 @@ meeting_view = MeetingAPI.as_view('meeting')
 
 # add rules for API endpoints
 meeting_blueprint.add_url_rule(
-    '/schedule/<string:schedule_id>/timeslot/<string:timeslot_id>',
+    '/schedule/<int:schedule_id>/timeslot/<int:timeslot_id>',
     view_func=meeting_view,
     methods=['POST', 'GET']
 )
 meeting_blueprint.add_url_rule(
-    '/schedule/<string:schedule_id>/timeslot/<string:timeslot_id>/meeting/<string:meeting_id>',
+    '/schedule/<int:schedule_id>/timeslot/<int:timeslot_id>/meeting/<int:meeting_id>',
     view_func=meeting_view,
     methods=['DELETE',]
 )

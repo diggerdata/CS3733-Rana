@@ -54,7 +54,7 @@ class ToggleTimeslotAPI(MethodView):
                 return make_response(jsonify(resp)), 401
 
 class ToggleWeekTimeslotAPI(MethodView):
-    def post(self, schedule_id):
+    def post(self, schedule_id, toggle):
         schedule = Schedule.query.filter_by(id=schedule_id).first()
         if schedule:
             sent_secret_code = None
@@ -70,8 +70,18 @@ class ToggleWeekTimeslotAPI(MethodView):
                 if request.args.get('day') and request.args.get('day'):
                     try:
                         day = datetime.strptime(request.args.get('day'), '%Y-%m-%dT%H:%M:%S.%fZ').date()
-                        # TODO: Finish so it gets current state
-                        TimeSlot.query.with_parent(schedule).filter(db.func.DATE(TimeSlot.start_date) == day).update({TimeSlot.available: not TimeSlot.available}, synchronize_session=False)
+                        if toggle == 'open':
+                            TimeSlot.query.with_parent(schedule).filter(db.func.DATE(TimeSlot.start_date) == day).\
+                                update({TimeSlot.available: True}, synchronize_session=False)
+                        elif toggle == 'close':
+                            TimeSlot.query.with_parent(schedule).filter(db.func.DATE(TimeSlot.start_date) == day).\
+                                update({TimeSlot.available: False}, synchronize_session=False)
+                        else:
+                            resp = {
+                                'status': 'fail',
+                                'message': 'Provide a valid toggle (open, close).'
+                            }
+                            return make_response(jsonify(resp)), 401
                         db.session.commit()
                         timeslots = TimeSlot.query.with_parent(schedule).filter(db.func.DATE(TimeSlot.start_date) == day).all()
                         resp = {
@@ -110,12 +120,13 @@ toggle_week_timeslot_view = ToggleWeekTimeslotAPI.as_view('toggle_week_timeslot_
 
 # add rules for API endpoints
 timeslot_blueprint.add_url_rule(
-    '/schedule/<string:schedule_id>/timeslot/<string:timeslot_id>/toggle',
+    '/schedule/<string:schedule_id>/timeslot/<int:timeslot_id>/toggle',
     view_func=toggle_timeslot_view,
     methods=['POST',]
 )
 timeslot_blueprint.add_url_rule(
-    '/schedule/<string:schedule_id>/timeslot/toggle',
+    # ?toggle=open or ?toggle=close
+    '/schedule/<string:schedule_id>/timeslot/<string:toggle>',
     view_func=toggle_week_timeslot_view,
     methods=['POST',]
 )
