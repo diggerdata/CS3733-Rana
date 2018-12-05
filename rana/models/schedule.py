@@ -25,12 +25,12 @@ class Schedule(db.Model):
         self.duration = duration
         self.created = datetime.utcnow()
         self.secret_code = secret_key()
-        self.add_timeslots(self.duration)
+        self.add_timeslots(self.duration, self.start_date, self.end_date)
     
     def __repr__(self):
         return '<Schedule {}>'.format(self.name)
 
-    def add_timeslots(self, duration):
+    def add_timeslots(self, duration, start_date, end_date):
         """Add all timeslots to schedule based on duration.
         
         Parameters
@@ -39,13 +39,13 @@ class Schedule(db.Model):
             The individual timeslot duration.
         """
 
-        last_time = self.start_date
+        last_time = start_date
         delta = timedelta(days=1)
         weekend = set([5, 6])
         start_time = self.start_date.hour
         end_time = self.end_date.hour
         num = int((end_time-start_time)//(self.duration/60))
-        while last_time <= self.end_date:
+        while last_time <= end_date:
             if last_time.weekday() not in weekend:
                 day = last_time
                 for i in range(num):

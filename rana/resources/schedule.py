@@ -49,36 +49,44 @@ class ScheduleAPI(MethodView):
         post_data = request.get_json()
         schedule = Schedule.query.filter_by(name=post_data.get('name')).first()
         if not schedule:
-            try:
-                schedule = Schedule(
-                    name=post_data.get('name'),
-                    start_date=datetime.strptime(post_data.get('start_date'), '%Y-%m-%dT%H:%M:%S.%fZ'),
-                    end_date=datetime.strptime(post_data.get('end_date'), '%Y-%m-%dT%H:%M:%S.%fZ'),
-                    duration=post_data.get('duration')
-                )
-                db.session.add(schedule)
-                user = User.query.filter_by(username=post_data.get('username'),
-                                            user_type='organizer').first()
-                if not user:
-                    user = User(
-                        username=post_data.get('username'),
-                        email=post_data.get('email'),
-                        user_type='organizer'
+            durations = [10, 15, 20, 30, 60]
+            if post_data.get('duration') in durations:
+                try:
+                    schedule = Schedule(
+                        name=post_data.get('name'),
+                        start_date=datetime.strptime(post_data.get('start_date'), '%Y-%m-%dT%H:%M:%S.%fZ'),
+                        end_date=datetime.strptime(post_data.get('end_date'), '%Y-%m-%dT%H:%M:%S.%fZ'),
+                        duration=
                     )
-                    db.session.add(user)
-                user.schedules.append(schedule)
-                db.session.commit()
-                resp = {
-                    'status': 'success',
-                    'message': 'Successfully created schedule.',
-                    'schedule_id': schedule.id,
-                    'secret_code': schedule.secret_code
-                }
-                return make_response(jsonify(resp)), 201
-            except Exception as e:
+                    db.session.add(schedule)
+                    user = User.query.filter_by(username=post_data.get('username'),
+                                                user_type='organizer').first()
+                    if not user:
+                        user = User(
+                            username=post_data.get('username'),
+                            email=post_data.get('email'),
+                            user_type='organizer'
+                        )
+                        db.session.add(user)
+                    user.schedules.append(schedule)
+                    db.session.commit()
+                    resp = {
+                        'status': 'success',
+                        'message': 'Successfully created schedule.',
+                        'schedule_id': schedule.id,
+                        'secret_code': schedule.secret_code
+                    }
+                    return make_response(jsonify(resp)), 201
+                except Exception as e:
+                    resp = {
+                        'status': 'fail',
+                        'message': str(e)
+                    }
+                    return make_response(jsonify(resp)), 401
+            else:
                 resp = {
                     'status': 'fail',
-                    'message': str(e)
+                    'message': 'Please choose a valid timeslot duration.',
                 }
                 return make_response(jsonify(resp)), 401
         else:
@@ -130,7 +138,12 @@ class ScheduleAPI(MethodView):
             }
             return make_response(jsonify(resp)), 401
 
+class ExtendScheduleAPI(MethodView):
+    def post(self, schedule_id):
+        pass
+
 schedule_view = ScheduleAPI.as_view('schedule')
+extend_schedule_view = ExtendScheduleAPI.as_view('extend_schedule')
 
 # add rules for API endpoints
 schedule_blueprint.add_url_rule(
@@ -142,4 +155,9 @@ schedule_blueprint.add_url_rule(
     '/schedule/<int:schedule_id>',
     view_func=schedule_view,
     methods=['GET', 'DELETE']
+)
+schedule_blueprint.add_url_rule(
+    '/schedule/<int:schedule_id>',
+    view_func=extend_schedule_view,
+    methods=['POST',]
 )
