@@ -70,6 +70,7 @@ class ToggleWeekTimeslotAPI(MethodView):
                 if request.args.get('day') and request.args.get('day'):
                     try:
                         day = datetime.strptime(request.args.get('day'), '%Y-%m-%dT%H:%M:%S.%fZ').date()
+                        # TODO: Finish so it gets current state
                         TimeSlot.query.with_parent(schedule).filter(db.func.DATE(TimeSlot.start_date) == day).update({TimeSlot.available: not TimeSlot.available}, synchronize_session=False)
                         db.session.commit()
                         timeslots = TimeSlot.query.with_parent(schedule).filter(db.func.DATE(TimeSlot.start_date) == day).all()
