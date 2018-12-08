@@ -42,17 +42,17 @@ class Schedule(db.Model):
         last_time = start_date
         delta = timedelta(days=1)
         weekend = set([5, 6])
-        start_time = self.start_date.hour
-        end_time = self.end_date.hour
-        num = int((end_time-start_time)//(self.duration/60))
+        start_time = start_date.hour
+        end_time = end_date.hour
+        num = int((end_time-start_time)//(duration/60))
         while last_time <= end_date:
             if last_time.weekday() not in weekend:
                 day = last_time
                 for i in range(num):
                     timeslot = TimeSlot(
                         start_date=day,
-                        duration=self.duration
+                        duration=duration
                     )
                     self.timeslots.append(timeslot)
-                    day += timedelta(minutes=self.duration)
+                    day += timedelta(minutes=duration)
             last_time += delta

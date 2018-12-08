@@ -2,7 +2,7 @@ from flask import Blueprint, request, make_response, jsonify
 from flask.views import MethodView
 from datetime import datetime, timedelta
 
-from ..models import Schedule, User, TimeSlot
+from ..models import Schedule, User, TimeSlot, Meeting
 from .. import db
 
 schedule_blueprint = Blueprint('schedule', __name__)
@@ -16,11 +16,35 @@ class ScheduleAPI(MethodView):
             if request.args.get('week'):
                 start_time = datetime.strptime(request.args.get('week'), '%Y-%m-%dT%H:%M:%S.%fZ')
                 end_time = start_time + timedelta(days=5)
-                timeslots = TimeSlot.query.with_parent(schedule).filter(TimeSlot.start_date.between(start_time, end_time)).all()
+                timeslots = TimeSlot.query.with_parent(schedule).filter(TimeSlot.start_date.between(start_time, end_time)).order_by(TimeSlot.start_date.asc()).all()
             else:
                 start_time = schedule.start_date
                 end_time = start_time + timedelta(days=(5-start_time.weekday()))
-                timeslots = TimeSlot.query.with_parent(schedule).filter(TimeSlot.start_date.between(start_time, end_time)).all()
+                timeslots = TimeSlot.query.with_parent(schedule).filter(TimeSlot.start_date.between(start_time, end_time)).order_by(TimeSlot.start_date.asc()).all()
+            
+            resp_timeslots = []
+            for ts in timeslots:
+                meeting = Meeting.query.with_parent(ts).first()
+                if meeting:
+                    user = User.query.with_parent(meeting).first()
+                    resp_timeslots.append({
+                        'id': ts.id, 
+                        'start_date': ts.start_date.strftime('%Y-%m-%dT%H:%M:%SZ'), 
+                        'duration': ts.duration, 
+                        'available': ts.available,
+                        'meeting': {
+                            'username': user.username,
+                            'email': user.email
+                        }
+                    })
+                else:
+                    resp_timeslots.append({
+                        'id': ts.id, 
+                        'start_date': ts.start_date.strftime('%Y-%m-%dT%H:%M:%SZ'), 
+                        'duration': ts.duration, 
+                        'available': ts.available,
+                        'meeting': None
+                    })
             resp = {
                 'status': 'success',
                 'name': schedule.name,
@@ -29,12 +53,7 @@ class ScheduleAPI(MethodView):
                 'end_date': schedule.end_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                 'start_weekday': schedule.start_date.weekday(),
                 'duration': schedule.duration,
-                'timeslots': [{
-                        'id': ts.id, 
-                        'start_date': ts.start_date.strftime('%Y-%m-%dT%H:%M:%SZ'), 
-                        'duration': ts.duration, 
-                        'available': ts.available
-                    } for ts in timeslots]
+                'timeslots': resp_timeslots
             }
             return make_response(jsonify(resp)), 201
             
@@ -140,8 +159,69 @@ class ScheduleAPI(MethodView):
             return make_response(jsonify(resp)), 401
 
 class ExtendScheduleAPI(MethodView):
-    def post(self, schedule_id):
-        pass
+    def post(self, schedule_id, extend):
+        post_data = request.get_json()
+        schedule = Schedule.query.filter_by(id=schedule_id).first()
+        new_date = datetime.strptime(post_data.get('date'), '%Y-%m-%dT%H:%M:%S.%fZ')
+        if schedule:
+            if extend == 'end':
+                if new_date > schedule.end_date:
+                    try:
+                        end_date = schedule.end_date
+                        start_date = schedule.start_date
+                        
+                        start_date = start_date.replace(year=end_date.year, month=end_date.month, day=end_date.day)
+                        end_date = end_date.replace(year=new_date.year, month=new_date.month, day=new_date.day)
+                        schedule.add_timeslots(schedule.duration, start_date, end_date)
+                        schedule.end_date = end_date
+                        db.session.commit()
+                        resp = {
+                            'status': 'success',
+                            'message': 'Successfully extended the start date.',
+                        }
+                        return make_response(jsonify(resp)), 201
+                    except Exception as e:
+                        resp = {
+                            'status': 'fail',
+                            'message': str(e)
+                        }
+                        return make_response(jsonify(resp)), 401
+            elif extend == 'start':
+                 if new_date < schedule.start_date:
+                    try:
+                        end_date = schedule.end_date
+                        start_date = schedule.start_date
+                        
+                        end_date = end_date.replace(year=start_date.year, month=start_date.month, day=start_date.day)
+                        start_date = start_date.replace(year=new_date.year, month=new_date.month, day=new_date.day)
+
+                        schedule.add_timeslots(schedule.duration, start_date, end_date)
+                        schedule.start_date = start_date
+                        db.session.commit()
+                        resp = {
+                            'status': 'success',
+                            'message': 'Successfully extended the end date.',
+                        }
+                        return make_response(jsonify(resp)), 201
+                    except Exception as e:
+                        resp = {
+                            'status': 'fail',
+                            'message': str(e)
+                        }
+                        return make_response(jsonify(resp)), 401
+            else:
+                resp = {
+                    'status': 'fail',
+                    'message': 'Please use either `end` or `start`.',
+                }
+                return make_response(jsonify(resp)), 401
+        else:
+            resp = {
+                'status': 'fail',
+                'message': 'Schedule does not exist.',
+            }
+            return make_response(jsonify(resp)), 401
+
 
 schedule_view = ScheduleAPI.as_view('schedule')
 extend_schedule_view = ExtendScheduleAPI.as_view('extend_schedule')
@@ -158,7 +238,7 @@ schedule_blueprint.add_url_rule(
     methods=['GET', 'DELETE']
 )
 schedule_blueprint.add_url_rule(
-    '/schedule/<int:schedule_id>',
+    '/schedule/<int:schedule_id>/<string:extend>',
     view_func=extend_schedule_view,
     methods=['POST',]
 )
