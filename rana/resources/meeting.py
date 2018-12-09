@@ -105,7 +105,7 @@ class MeetingAPI(MethodView):
             }
             return make_response(jsonify(resp)), 401
 
-    def delete(self, schedule_id, timeslot_id, meeting_id):
+    def delete(self, schedule_id, timeslot_id):
         """Cancel a meeting by schedule id, timeslot id, and meeting id."""
         schedule = Schedule.query.filter_by(id=schedule_id).first()
         if schedule:
@@ -172,7 +172,7 @@ meeting_blueprint.add_url_rule(
     methods=['POST', 'GET']
 )
 meeting_blueprint.add_url_rule(
-    '/schedule/<int:schedule_id>/timeslot/<int:timeslot_id>/meeting/<int:meeting_id>',
+    '/schedule/<int:schedule_id>/timeslot/<int:timeslot_id>',
     view_func=meeting_view,
     methods=['DELETE',]
 )
