@@ -106,7 +106,7 @@ class MeetingAPI(MethodView):
             return make_response(jsonify(resp)), 401
 
     def delete(self, schedule_id, timeslot_id):
-        """Cancel a meeting by schedule id, timeslot id, and meeting id."""
+        """Cancel a meeting by schedule id and timeslot id."""
         schedule = Schedule.query.filter_by(id=schedule_id).first()
         if schedule:
             timeslot = TimeSlot.query.with_parent(schedule).filter_by(id=timeslot_id).first()
@@ -122,7 +122,7 @@ class MeetingAPI(MethodView):
                             'message': 'Authorization failed. Please provide a secret code.'
                         }
                         return make_response(jsonify(resp)), 401
-                    if sent_secret_code == meeting.secret_code:
+                    if sent_secret_code == meeting.secret_code or sent_secret_code == schedule.secret_code:
                         try:
                             db.session.delete(meeting)
                             timeslot.available = True
