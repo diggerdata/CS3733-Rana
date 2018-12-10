@@ -8,39 +8,24 @@ from .. import db
 meeting_blueprint = Blueprint('meeting', __name__)
 
 class MeetingAPI(MethodView):
-    def get(self, schedule_id, timeslot_id):
-        """Get a meeting from a timeslot and schedule id."""
+    def get(self, schedule_id, secret_code):
+        """Get a meeting from a secret code and schedule id."""
         schedule = Schedule.query.filter_by(id=schedule_id).first()
         if schedule:
-            timeslot = TimeSlot.query.with_parent(schedule).filter_by(id=timeslot_id).first()
-            if timeslot:
-                if timeslot.available:
-                    meeting = Meeting.query.with_parent(timeslot).first()
-                    if meeting:
-                        user = User.query.with_parent(meeting).first()
-                        resp = {
-                            'email': user.email,
-                            'username': user.username,
-                            'user_type': user.user_type,
-                            'meeting_id': meeting.id
-                        }
-                        return make_response(jsonify(resp)), 201
-                    else:
-                        resp = {
-                            'status': 'fail',
-                            'message': 'No meeting for timeslot id {}.'.format(timeslot_id),
-                        }
-                        return make_response(jsonify(resp)), 401
-                else:
-                    resp = {
-                        'status': 'fail',
-                        'message': 'Timeslot not available.',
-                    }
-                    return make_response(jsonify(resp)), 401
+            meeting = Meeting.query.filter_by(secret_code=secret_code).first()
+            if meeting:
+                user = User.query.with_parent(meeting).first()
+                resp = {
+                    'email': user.email,
+                    'username': user.username,
+                    'user_type': user.user_type,
+                    'meeting_id': meeting.id
+                }
+                return make_response(jsonify(resp)), 201
             else:
                 resp = {
                     'status': 'fail',
-                    'message': 'Timeslot does not exist.',
+                    'message': 'No meeting for secret code {}.'.format(secret_code),
                 }
                 return make_response(jsonify(resp)), 401
         else:
@@ -169,10 +154,10 @@ meeting_view = MeetingAPI.as_view('meeting')
 meeting_blueprint.add_url_rule(
     '/schedule/<int:schedule_id>/timeslot/<int:timeslot_id>',
     view_func=meeting_view,
-    methods=['POST', 'GET']
+    methods=['POST', 'DELETE']
 )
 meeting_blueprint.add_url_rule(
-    '/schedule/<int:schedule_id>/timeslot/<int:timeslot_id>',
+    '/schedule/<int:schedule_id>/meeting/<string:secret_code>',
     view_func=meeting_view,
-    methods=['DELETE',]
+    methods=['GET',]
 )
