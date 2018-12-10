@@ -8,6 +8,11 @@ from .. import db
 
 timeslot_blueprint = Blueprint('timeslot', __name__)
 
+class QueryTimeslotAPI(MethodView):
+    def get(self, schedule_id):
+        """Get timeslots by querrying with hour, day, week, etc."""
+        pass
+
 class ToggleTimeslotAPI(MethodView):
     def post(self, schedule_id, timeslot_id, toggle):
         """Toggle a timeslot within a schedule."""
@@ -107,10 +112,12 @@ class ToggleMultiTimeslotAPI(MethodView):
                     try:
                         time = datetime.strptime(request.args.get('time'), '%Y-%m-%dT%H:%M:%S.%fZ').time()
                         if toggle == 'open':
-                            TimeSlot.query.with_parent(schedule).filter(TimeSlot.start_date == time).\
+                            TimeSlot.query.with_parent(schedule).filter(db.func.extract('hour', TimeSlot.start_date) == time.hour).\
+                                filter(db.func.extract('minute', TimeSlot.start_date) == time.minute).\
                                 update({TimeSlot.available: True}, synchronize_session=False)
                         elif toggle == 'close':
-                            TimeSlot.query.with_parent(schedule).filter(TimeSlot.start_date == time).\
+                            TimeSlot.query.with_parent(schedule).filter(db.func.extract('hour', TimeSlot.start_date) == time.hour).\
+                                filter(db.func.extract('minute', TimeSlot.start_date) == time.minute).\
                                 update({TimeSlot.available: False}, synchronize_session=False)
                         else:
                             resp = {
@@ -149,10 +156,16 @@ class ToggleMultiTimeslotAPI(MethodView):
             }
             return make_response(jsonify(resp)), 401
 
+query_timeslot_view = QueryTimeslotAPI.as_view('query_timeslot_api')
 toggle_timeslot_view = ToggleTimeslotAPI.as_view('toggle_timeslot_api')
 toggle_multi_timeslot_view = ToggleMultiTimeslotAPI.as_view('toggle_multi_timeslot_api')
 
 # add rules for API endpoints
+timeslot_blueprint.add_url_rule(
+    '/schedule/<string:schedule_id>/timeslot',
+    view_func=query_timeslot_view,
+    methods=['GET',]
+)
 timeslot_blueprint.add_url_rule(
     '/schedule/<string:schedule_id>/timeslot/<int:timeslot_id>/<string:toggle>',
     view_func=toggle_timeslot_view,

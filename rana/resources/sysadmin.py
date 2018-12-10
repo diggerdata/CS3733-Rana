@@ -20,9 +20,11 @@ class SysAdminAPI(MethodView):
             return make_response(jsonify(resp)), 401
         user = User.query.filter_by(secret_code=sent_secret_code).first()
         if user and user.user_type == 'sysadmin':
-            if 'date' in request.args:
-                date = datetime.strptime(request.args.get('date'), '%Y-%m-%dT%H:%M:%S.%fZ')
-                schedules = Schedule.query.filter(Schedule.created.between(date, datetime.utcnow())).all()
+            if 'days' in request.args:
+                now = datetime.utcnow()
+                num_days = int(request.args.get('days'))
+                date = now - timedelta(days=num_days)
+                schedules = Schedule.query.filter(Schedule.created <= date).all()
                 num_schedules = len(schedules)
                 for schedule in schedules:
                     timeslots = TimeSlot.query.with_parent(schedule).all()
@@ -42,7 +44,46 @@ class SysAdminAPI(MethodView):
             else:
                 resp = {
                     'status': 'fail',
-                    'message': 'Please provide a date.'
+                    'message': 'Please provide a number of days.'
+                }
+                return make_response(jsonify(resp)), 401
+        else:
+            resp = {
+                'status': 'fail',
+                'message': 'Authorization failed. Secret code is incorrect.'
+            }
+            return make_response(jsonify(resp)), 401
+
+    def get(self):
+        sent_secret_code = None
+        if 'Authorization' in request.headers:
+            sent_secret_code = request.headers.get('Authorization')
+        else:
+            resp = {
+                'status': 'fail',
+                'message': 'Authorization failed. Please provide a secret code.'
+            }
+            return make_response(jsonify(resp)), 401
+        user = User.query.filter_by(secret_code=sent_secret_code).first()
+        if user and user.user_type == 'sysadmin':
+            if 'hours' in request.args:
+                now = datetime.utcnow()
+                num_hours = int(request.args.get('hours'))
+                date = now - timedelta(hours=num_hours)
+                schedules = Schedule.query.filter(Schedule.created.between(date, now)).all() 
+                resp = {
+                    'num_created': len(schedules),
+                    'schedules': [{
+                        'name': s.name,
+                        'organizer': s.user.username,
+                        'created': s.created.isoformat(),
+                    } for s in schedules]
+                }
+                return make_response(jsonify(resp)), 201
+            else:
+                resp = {
+                    'status': 'fail',
+                    'message': 'Please provide a number of hours.'
                 }
                 return make_response(jsonify(resp)), 401
         else:
@@ -58,5 +99,5 @@ sysadmin_view = SysAdminAPI.as_view('sysadmin')
 sysadmin_blueprint.add_url_rule(
     '/sysadmin',
     view_func=sysadmin_view,
-    methods=['DELETE',]
+    methods=['DELETE', 'GET']
 )
