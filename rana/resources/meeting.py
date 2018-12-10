@@ -15,11 +15,15 @@ class MeetingAPI(MethodView):
             meeting = Meeting.query.filter_by(secret_code=secret_code).first()
             if meeting:
                 user = User.query.with_parent(meeting).first()
+                timeslot = meeting.timeslot
                 resp = {
                     'email': user.email,
                     'username': user.username,
                     'user_type': user.user_type,
-                    'meeting_id': meeting.id
+                    'meeting_id': meeting.id,
+                    'start_date': timeslot.start_date,
+                    'duration': timeslot.duration,
+                    'timeslot_id': timeslot.id
                 }
                 return make_response(jsonify(resp)), 201
             else:

@@ -131,6 +131,11 @@ class ScheduleAPI(MethodView):
                 return make_response(jsonify(resp)), 401
             if sent_secret_code == schedule.secret_code:
                 try:
+                    timeslots = TimeSlot.query.with_parent(schedule).all()
+                    for ts in timeslots:
+                        meeting = Meeting.query.with_parent(ts).first()
+                        if meeting:
+                            db.session.delete(meeting)
                     TimeSlot.query.with_parent(schedule).delete(synchronize_session=False)
                     db.session.delete(schedule)
                     db.session.commit()
@@ -238,9 +243,39 @@ class ExtendScheduleAPI(MethodView):
             }
             return make_response(jsonify(resp)), 401
 
+class OrganizerAuthAPI(MethodView):
+    def get(self, schedule_id):
+        schedule = Schedule.query.filter_by(id=schedule_id).first()
+        if schedule:
+            sent_secret_code = None
+            if 'Authorization' in request.headers:
+                sent_secret_code = request.headers.get('Authorization')
+            else:
+                resp = {
+                    'status': 'fail',
+                    'message': 'Authorization failed. Please provide a secret code.'
+                }
+                return make_response(jsonify(resp)), 401
+            if sent_secret_code == schedule.secret_code:
+                resp = {
+                    'authorized': True
+                }
+                return make_response(jsonify(resp)), 201
+            else:
+                resp = {
+                    'authorized': False
+                }
+                return make_response(jsonify(resp)), 401
+        else:
+            resp = {
+                'status': 'fail',
+                'message': 'Schedule does not exist.',
+            }
+            return make_response(jsonify(resp)), 401
 
 schedule_view = ScheduleAPI.as_view('schedule')
 extend_schedule_view = ExtendScheduleAPI.as_view('extend_schedule')
+organizer_auth_view = OrganizerAuthAPI.as_view('organizer_auth')
 
 # add rules for API endpoints
 schedule_blueprint.add_url_rule(
@@ -257,4 +292,9 @@ schedule_blueprint.add_url_rule(
     '/schedule/<int:schedule_id>/<string:extend>',
     view_func=extend_schedule_view,
     methods=['POST',]
+)
+schedule_blueprint.add_url_rule(
+    '/schedule/<int:schedule_id>/authenticate',
+    view_func=organizer_auth_view,
+    methods=['GET',]
 )
