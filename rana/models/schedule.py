@@ -18,19 +18,19 @@ class Schedule(db.Model):
     user = db.relationship('User', backref=db.backref('schedules', lazy=True))
     secret_code = db.Column(db.String(10), unique=True, nullable=False)
 
-    def __init__(self, name, start_date, end_date, duration):
+    def __init__(self, name, start_date, end_date, duration, hours):
         self.name = name
         self.start_date = start_date
         self.end_date = end_date
         self.duration = duration
         self.created = datetime.utcnow()
         self.secret_code = secret_key()
-        self.add_timeslots(self.duration, self.start_date, self.end_date)
+        self.add_timeslots(self.duration, self.start_date, self.end_date, hours)
     
     def __repr__(self):
         return '<Schedule {}>'.format(self.name)
 
-    def add_timeslots(self, duration, start_date, end_date):
+    def add_timeslots(self, duration, start_date, end_date, hours):
         """Add all timeslots to schedule based on duration.
         
         Parameters
@@ -42,9 +42,9 @@ class Schedule(db.Model):
         last_time = start_date
         delta = timedelta(days=1)
         weekend = set([5, 6])
-        start_time = start_date.hour
-        end_time = end_date.hour
-        num = int((end_time-start_time)//(duration/60))
+        # start_time = start_date.hour
+        # end_time = end_date.hour
+        num = int(hours//(duration/60))
         while last_time <= end_date:
             if last_time.weekday() not in weekend:
                 day = last_time

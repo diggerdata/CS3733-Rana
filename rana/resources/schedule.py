@@ -76,7 +76,8 @@ class ScheduleAPI(MethodView):
                         name=post_data.get('name'),
                         start_date=datetime.strptime(post_data.get('start_date'), '%Y-%m-%dT%H:%M:%S.%fZ'),
                         end_date=datetime.strptime(post_data.get('end_date'), '%Y-%m-%dT%H:%M:%S.%fZ'),
-                        duration=post_data.get('duration')
+                        duration=post_data.get('duration'),
+                        hours=post_data.get('hours')
                     )
                     db.session.add(schedule)
                     user = User.query.filter_by(username=post_data.get('username'),
@@ -210,7 +211,7 @@ class ExtendScheduleAPI(MethodView):
                             end_date = end_date.replace(year=start_date.year, month=start_date.month, day=start_date.day)
                             start_date = start_date.replace(year=new_date.year, month=new_date.month, day=new_date.day)
 
-                            schedule.add_timeslots(schedule.duration, start_date, end_date)
+                            schedule.add_timeslots(schedule.duration, start_date, end_date, post_data.get('hours'))
                             schedule.start_date = start_date
                             db.session.commit()
                             resp = {
