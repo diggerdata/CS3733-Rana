@@ -93,11 +93,41 @@ class SysAdminAPI(MethodView):
             }
             return make_response(jsonify(resp)), 401
 
+class SysAdminAuthAPI(MethodView):
+    def get(self):
+        sent_secret_code = None
+        sys_admin = None
+        if 'Authorization' in request.headers:
+            sent_secret_code = request.headers.get('Authorization')
+            sys_admin = User.query.filter_by(secret_code=sent_secret_code).first()
+            if sys_admin and sys_admin.user_type == 'sysadmin':
+                resp = {
+                    'authorized': True
+                }
+                return make_response(jsonify(resp)), 201
+            else:
+                resp = {
+                    'authorized': False
+                }
+                return make_response(jsonify(resp)), 401
+        else:
+            resp = {
+                'status': 'fail',
+                'message': 'Authorization failed. Please provide a secret code.'
+            }
+            return make_response(jsonify(resp)), 401
+
 sysadmin_view = SysAdminAPI.as_view('sysadmin')
+sysadmin_auth_view = SysAdminAuthAPI.as_view('sysadmin_auth')
 
 # add rules for API endpoints
 sysadmin_blueprint.add_url_rule(
     '/sysadmin',
     view_func=sysadmin_view,
     methods=['DELETE', 'GET']
+)
+sysadmin_blueprint.add_url_rule(
+    '/sysadmin/authenticate',
+    view_func=sysadmin_view,
+    methods=['GET',]
 )
