@@ -10,8 +10,42 @@ timeslot_blueprint = Blueprint('timeslot', __name__)
 
 class QueryTimeslotAPI(MethodView):
     def get(self, schedule_id):
-        """Get timeslots by querrying with hour, day, week, etc."""
-        pass
+        """Get timeslots by querrying with hour, date, weekday, month, year."""
+        schedule = Schedule.query.filter_by(id=schedule_id).first()
+        if schedule:
+            query = TimeSlot.query.with_parent(schedule)
+            if 'hour' in request.args:
+                hour = request.args.get('hour')
+                query = query.filter(db.func.extract('hour', TimeSlot.start_date) == hour)
+            if 'day' in request.args:
+                day = datetime.strptime(request.args.get('day'), '%Y-%m-%dT%H:%M:%S.%fZ').date()
+                query = query.filter(db.func.DATE(TimeSlot.start_date) == day)
+            if 'weekday' in request.args:
+                weekday = request.args.get('weekday')
+                query = query.filter(db.func.extract('dow', TimeSlot.start_date) == weekday)
+            if 'month' in request.args:
+                month = request.args.get('month')
+                query = query.filter(db.func.extract('month', TimeSlot.start_date) == month)
+            if 'year' in request.args:
+                year = request.args.get('year')
+                query = query.filter(db.func.extract('year', TimeSlot.start_date) == year)
+            timeslots = []
+            if request.args:
+                timeslots = query.filter_by(available=True).all()
+            resp = {
+                'timeslots': [{
+                    'id': ts.id, 
+                    'start_date': ts.start_date.strftime('%Y-%m-%dT%H:%M:%SZ'), 
+                    'duration': ts.duration
+                } for ts in timeslots]
+            }
+            return make_response(jsonify(resp)), 201
+        else:
+            resp = {
+                'status': 'fail',
+                'message': 'Schedule does not exist.',
+            }
+            return make_response(jsonify(resp)), 401
 
 class ToggleTimeslotAPI(MethodView):
     def post(self, schedule_id, timeslot_id, toggle):
