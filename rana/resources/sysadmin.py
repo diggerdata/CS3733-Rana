@@ -76,7 +76,7 @@ class SysAdminAPI(MethodView):
                     'schedules': [{
                         'name': s.name,
                         'organizer': s.user.username,
-                        'created': s.created.isoformat(),
+                        'created': s.created.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     } for s in schedules]
                 }
                 return make_response(jsonify(resp)), 201

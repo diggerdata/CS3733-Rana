@@ -188,7 +188,7 @@ class ExtendScheduleAPI(MethodView):
                             
                             start_date = start_date.replace(year=end_date.year, month=end_date.month, day=end_date.day)
                             end_date = end_date.replace(year=new_date.year, month=new_date.month, day=new_date.day)
-                            schedule.add_timeslots(schedule.duration, start_date, end_date, post_data.get('hours'))
+                            schedule.add_timeslots(schedule.duration, start_date, end_date)
                             schedule.end_date = end_date
                             db.session.commit()
                             resp = {

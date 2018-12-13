@@ -29,13 +29,13 @@ app.register_blueprint(meeting_blueprint)
 app.register_blueprint(timeslot_blueprint)
 app.register_blueprint(sysadmin_blueprint)
 
-from rana.models import User
+# from rana.models import User
 
-sysadmin = User.query.filter_by(user_type='sysadmin').all()
-if not sysadmin:
-    try:
-        sysadmin = User('god', 'god@op.com', 'sysadmin')
-        db.session.add(sysadmin)
-        db.session.commit()
-    except Exception as e:
-        print(e)
+# sysadmin = User.query.filter_by(user_type='sysadmin').all()
+# if not sysadmin:
+#     try:
+#         sysadmin = User('god', 'god@op.com', 'sysadmin')
+#         db.session.add(sysadmin)
+#         db.session.commit()
+#     except Exception as e:
+#         print(e)
