@@ -168,7 +168,15 @@ class ExtendScheduleAPI(MethodView):
     def post(self, schedule_id, extend):
         post_data = request.get_json()
         schedule = Schedule.query.filter_by(id=schedule_id).first()
-        new_date = datetime.strptime(post_data.get('date'), '%Y-%m-%dT%H:%M:%S.%fZ')
+        new_date = None
+        try:
+            new_date = datetime.strptime(post_data.get('date'), '%Y-%m-%dT%H:%M:%S.%fZ')
+        except Exception as e:
+            resp = {
+                'status': 'fail',
+                'message': str(e)
+            }
+            return make_response(jsonify(resp)), 401
         if schedule:
             sent_secret_code = None
             if 'Authorization' in request.headers:
@@ -188,7 +196,7 @@ class ExtendScheduleAPI(MethodView):
                             
                             start_date = start_date.replace(year=end_date.year, month=end_date.month, day=end_date.day)
                             end_date = end_date.replace(year=new_date.year, month=new_date.month, day=new_date.day)
-                            schedule.add_timeslots(schedule.duration, start_date, end_date)
+                            schedule.add_timeslots(schedule.duration, start_date, end_date, post_data.get('hours'))
                             schedule.end_date = end_date
                             db.session.commit()
                             resp = {
