@@ -38,7 +38,6 @@ class Schedule(db.Model):
         duration : int
             The individual timeslot duration.
         """
-
         last_time = start_date
         delta = timedelta(days=1)
         weekend = set([5, 6])
@@ -49,10 +48,12 @@ class Schedule(db.Model):
             if last_time.weekday() not in weekend:
                 day = last_time
                 for i in range(num):
-                    timeslot = TimeSlot(
-                        start_date=day,
-                        duration=duration
-                    )
-                    self.timeslots.append(timeslot)
+                    is_timeslot = TimeSlot.query.with_parent(self).filter_by(start_date=day).first()
+                    if not is_timeslot:
+                        timeslot = TimeSlot(
+                            start_date=day,
+                            duration=duration
+                        )
+                        self.timeslots.append(timeslot)
                     day += timedelta(minutes=duration)
             last_time += delta
