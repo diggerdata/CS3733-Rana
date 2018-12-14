@@ -21,26 +21,36 @@ class SysAdminAPI(MethodView):
         user = User.query.filter_by(secret_code=sent_secret_code).first()
         if user and user.user_type == 'sysadmin':
             if 'days' in request.args:
-                now = datetime.utcnow()
-                num_days = int(request.args.get('days'))
-                date = now - timedelta(days=num_days)
-                schedules = Schedule.query.filter(Schedule.created <= date).all()
-                num_schedules = len(schedules)
-                for schedule in schedules:
-                    timeslots = TimeSlot.query.with_parent(schedule).all()
-                    for timeslot in timeslots:
-                        meeting = Meeting.query.with_parent(timeslot).first()
-                        if meeting:
-                            db.session.delete(meeting)
-                    TimeSlot.query.with_parent(schedule).delete(synchronize_session=False)
-                Schedule.query.filter(Schedule.created.between(date, datetime.utcnow())).delete(synchronize_session=False)
-                db.session.commit()
-                resp = {
-                    'status': 'success',
-                    'message': 'Schedules deleted.',
-                    'num_deleted': num_schedules
-                }
-                return make_response(jsonify(resp)), 201
+                try:
+                    now = datetime.utcnow()
+                    num_days = int(request.args.get('days'))
+                    date = now - timedelta(days=num_days)
+                    schedules = Schedule.query.filter(Schedule.created <= date).all()
+                    num_schedules = len(schedules)
+                    for schedule in schedules:
+                        timeslots = TimeSlot.query.with_parent(schedule).all()
+                        for timeslot in timeslots:
+                            meeting = Meeting.query.with_parent(timeslot).first()
+                            if meeting:
+                                db.session.delete(meeting)
+                            db.session.commit()
+                        TimeSlot.query.with_parent(schedule).delete(synchronize_session=False)
+                        db.session.delete(schedule)
+                        db.session.commit()
+                    # Schedule.query.filter(Schedule.created.between(date, datetime.utcnow())).delete(synchronize_session=False)
+                    # db.session.commit()
+                    resp = {
+                        'status': 'success',
+                        'message': 'Schedules deleted.',
+                        'num_deleted': num_schedules
+                    }
+                    return make_response(jsonify(resp)), 201
+                except Exception as e:
+                    resp = {
+                        'status': 'fail',
+                        'message': str(e)
+                    }
+                    return make_response(jsonify(resp)), 401
             else:
                 resp = {
                     'status': 'fail',
@@ -70,7 +80,7 @@ class SysAdminAPI(MethodView):
                 now = datetime.utcnow()
                 num_hours = int(request.args.get('hours'))
                 date = now - timedelta(hours=num_hours)
-                schedules = Schedule.query.filter(Schedule.created.between(date, now)).all() 
+                schedules = Schedule.query.filter(Schedule.created.between(date, now)).order_by(Schedule.created.desc()).all() 
                 resp = {
                     'num_created': len(schedules),
                     'schedules': [{

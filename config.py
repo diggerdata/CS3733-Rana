@@ -10,7 +10,7 @@ class Config(object):
 
 class ProductionConfig(Config):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = 'postgresql://diggerdata:ConeyIsland1984@rana.ccxajkpofxca.us-east-2.rds.amazonaws.com:5432/schedule'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://diggerdata:ConeyIsland1984@rana.ccxajkpofxca.us-east-2.rds.amazonaws.com:5432/scheduler'
 
 class StagingConfig(Config):
     DEVELOPMENT = True
