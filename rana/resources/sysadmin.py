@@ -128,6 +128,6 @@ sysadmin_blueprint.add_url_rule(
 )
 sysadmin_blueprint.add_url_rule(
     '/sysadmin/authenticate',
-    view_func=sysadmin_view,
+    view_func=sysadmin_auth_view,
     methods=['GET',]
 )

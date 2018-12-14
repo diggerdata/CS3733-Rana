@@ -141,7 +141,7 @@ class ScheduleAPI(MethodView):
                     db.session.delete(schedule)
                     db.session.commit()
                     resp = {
-                        'status': 'successs',
+                        'status': 'success',
                         'message': 'Schedule successfully deleted.'
                     }
                     return make_response(jsonify(resp)), 201
